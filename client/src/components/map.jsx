@@ -18,7 +18,8 @@ export default class Map extends React.Component {
 			nationalTrends: [],
 			selectValue: 'Top National Trends',
       colors: {},
-      textbox: ''
+			textbox: '',
+			searched: ''
 		}
     this.handleDropdown = this.handleDropdown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -41,11 +42,13 @@ export default class Map extends React.Component {
 	}
 	
 	postStatePercentages(searchTerm) {
-    console.log('Keyword:', searchTerm)
-    axios.post('/statepercentages', {word: searchTerm})
-			.then((response) => {
-				this.setPercentages(response.data);
-			})
+		console.log('Keyword:', searchTerm)
+		if (searchTerm !== '') {
+			axios.post('/statepercentages', {word: searchTerm})
+				.then((response) => {
+					this.setPercentages(response.data);
+				})
+		}
 	}
 
   setPercentages(data) {
@@ -127,7 +130,11 @@ export default class Map extends React.Component {
 			searched: this.state.textbox
 		});
     event.preventDefault();
-  }
+	}
+	
+	makeUnderline(input, wordsToUnderline) {
+		return input.replace(new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)','ig'), '$1<u>$2</u>$3');
+	}
 
   render() {
 		return (
@@ -162,7 +169,8 @@ export default class Map extends React.Component {
 							highlightFillColor: 'yellow',
 							popupTemplate: (geography, data) => {
 								return `<div class='hoverinfo'><b><i>${data.fillKey}%</i><br>${geography.properties.name} Tweets</b> ${data.text.map((tweet, i) => {
-									return '<br><br>' + '<b>' + (i+1) + '</b>' + '. ' + tweet;
+									let underlineTweet = this.makeUnderline(tweet, [this.state.searched, this.state.searched + 's', this.state.searched + 'es']);
+									return '<br><br>' + (i+1) + '. ' + underlineTweet;
 								})}
 								</div>`
 							},
