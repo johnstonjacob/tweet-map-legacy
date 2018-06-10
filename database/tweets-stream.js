@@ -50,4 +50,4 @@ setTimeout(() => {
   writeStream.write('\n]')
   writeStream.end();
   console.log(`Stored ${count} tweets!`);
-}, 300000);
+}, 900000);

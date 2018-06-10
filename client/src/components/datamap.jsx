@@ -14,7 +14,7 @@ const propChangeRequiresMapClear = (oldProps, newProps) => {
 
 export default class Datamap extends React.Component {
 	
-  // Originally in here when copied over but pop a syntax error
+  // Originally in here when copied over but pops a syntax error
   // static propTypes = {
   // 	return {arc: PropTypes.array,
   // 	arcOptions: PropTypes.object,
@@ -33,7 +33,6 @@ export default class Datamap extends React.Component {
   constructor(props) {
 		super(props);
 		this.resizeMap = this.resizeMap.bind(this);
-		// console.log(props)
   }
 
   componentDidMount() {
@@ -68,7 +67,7 @@ export default class Datamap extends React.Component {
 		}
 
 		delete this.map;
-  }
+	}
 
   drawMap() {
 		const {
@@ -92,42 +91,43 @@ export default class Datamap extends React.Component {
 				//Originally in here but spread operator is not working for us. Tried pulling props out manually, hopefully didn't miss anything
 				// ...props,
 				scope: this.props.scope,
-				labels: 'this.props.labels',
+				labels: this.props.labels,
 				fills: this.props.fills,
+				element: this.refs.container,
 				geographyConfig: this.props.geographyConfig,
-				data,
-				element: this.refs.container
+				data
 			});
 		} else {
-			map.updateChoropleth(data, updateChoroplethOptions);
+				map.options.fills = this.props.fills;
+        map.updateChoropleth(data, updateChoroplethOptions);
 			}
-
+      map.legend();
 			if (arc) {
 				map.arc(arc, arcOptions);
 			}
 
 			if (bubbles) {
-			map.bubbles(bubbles, bubbleOptions);
+		  	map.bubbles(bubbles, bubbleOptions);
 			}
 
 			if (graticule) {
-			map.graticule();
+			  map.graticule();
 			}
 
 			if (labels) {
-			map.labels();
+			  map.labels();
 			}
 	}
-
+	
 	resizeMap() {
 	  this.map.resize();
 	}
 
 	render() {
 	  const style = {
-			height: '100%',
-			position: 'absolute',
-			width: '100%',
+			height: this.props.height,
+			width: this.props.width,
+			position: this.props.position,
 			// height: '600px'
 			//Originally in here but spread operator is not working for us. Tried pulling props out manually, hopefully didn't miss anything
 			// ...this.props.style

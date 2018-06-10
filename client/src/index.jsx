@@ -34,9 +34,11 @@ class App extends React.Component {
           : 'nav-unselected'}
           onClick={() => this.changeView('tables')}>
           Tables
+          <br></br>
+          <br></br>
         </span>
-        <h1>Hello, World!</h1>
-        <p>Team Twit 4 Lyfe!</p>
+        {/* <h1>Hello, World!</h1>
+        <p>Team Twit 4 Lyfe!</p> */}
         {this.state.view === 'map'
           ? <Map />
           : <Tables />}
