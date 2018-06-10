@@ -5,7 +5,10 @@
   "main": "client.jsx",
   "scripts": {
     "react-dev": "webpack -d --watch",
-    "server-dev": "nodemon server/server.js"
+    "server-dev": "nodemon server/server.js",
+    "start": "node server/server.js",
+    "react": "webpack -p --watch",
+    "build": "webpack"
   },
   "author": "Blake Estes, Joseph Oh, Michael Panetta, Greg Richardson",
   "license": "ISC",
