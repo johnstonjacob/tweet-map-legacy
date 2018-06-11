@@ -138,11 +138,9 @@ export default class Map extends React.Component {
 			<div>
 				<div>
           <form onSubmit={this.handleSubmit}>
-            <label>
-              Trend 
-              <input type="text" value={this.state.textbox} onChange={this.handleTextboxChange}/>
-            </label>
-          <input type="submit" value="Calculate" />
+
+						<input type="text" autoFocus='autofocus' placeholder='Trends' value={this.state.textbox} onChange={this.handleTextboxChange}/>
+          <input type="submit" value="Populate Map" />
         </form>
         <br></br>
 					<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
