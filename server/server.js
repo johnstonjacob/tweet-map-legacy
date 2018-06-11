@@ -9,13 +9,13 @@ app.use(bodyParser.json());
 
 app.get('/nationaltrends', (req, res) => {
   console.log('GET request for national trends');
-  let trends = await db.getNationalTrends();
+  let trends = db.getNationalTrends();
   res.send(trends);
 });
 
 app.post('/statepercentages', (req, res) => {
   console.log('POST request for state percentages for ', req.body.word);
-  let percents = await db.getStatePercentages(req.body);
+  let percents = db.getStatePercentages(req.body);
   res.send(percents);
 })
 
