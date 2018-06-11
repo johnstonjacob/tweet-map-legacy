@@ -7,13 +7,13 @@ var app = express();
 app.use(express.static(__dirname + '/../client/dist/'));
 app.use(bodyParser.json());
 
-app.get('/nationaltrends', async (req, res) => {
+app.get('/nationaltrends', (req, res) => {
   console.log('GET request for national trends');
   let trends = await db.getNationalTrends();
   res.send(trends);
 });
 
-app.post('/statepercentages', async (req, res) => {
+app.post('/statepercentages', (req, res) => {
   console.log('POST request for state percentages for ', req.body.word);
   let percents = await db.getStatePercentages(req.body);
   res.send(percents);
