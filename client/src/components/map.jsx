@@ -2,8 +2,6 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
-
-import testData from '../../../database/testData.js';
 export default class Map extends React.Component {
   constructor() {
 		super();
@@ -27,7 +25,6 @@ export default class Map extends React.Component {
   }
   componentWillMount() {
     this.getNationalTrends();
-		this.setTrends(testData.testTrends);
   }
 
   getNationalTrends() {
