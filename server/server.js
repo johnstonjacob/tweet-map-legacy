@@ -13,6 +13,12 @@ app.get('/nationaltrends', async (req, res) => {
   res.send(trends);
 });
 
+app.get('/keywords', async (req, res) => {
+  console.log('GET request for state keywords');
+  let keywords = await db.getStateKeywords();
+  res.send(keywords);
+});
+
 app.post('/statepercentages', async (req, res) => {
   console.log('POST request for state percentages for ', req.body.word);
   let percents = await db.getStatePercentages(req.body);

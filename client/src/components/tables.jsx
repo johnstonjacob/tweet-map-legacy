@@ -8,23 +8,23 @@ class Tables extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      stateWords: [{
-        state: 'Texas',
-        keywords: [{word: 'Trump', count: 5}, {word: 'Ambien', count: 10}]
-      }, {
-        state: 'Florida',
-        keywords: [{word: 'Trump', count: 5}, {word: 'Ambien', count: 10}]
-      }, {
-        state: 'California',
-        keywords: [{word: 'Trump', count: 5}, {word: 'Ambien', count: 10}]
-      }, {
-        state: 'New York',
-        keywords: [{word: 'Trump', count: 5}, {word: 'Ambien', count: 10}]
-      }, {
-        state: 'Idaho',
-        keywords: [{word: 'Trump', count: 5}, {word: 'Ambien', count: 10}]
-      }]
+      stateWords: []
     };
+
+    this.getKeywords = this.getKeywords.bind(this);
+  }
+
+  componentDidMount() {
+    this.getKeywords();
+  }
+
+  getKeywords() {
+    axios.get('/keywords')
+      .then((res) => {
+        this.setState({
+          stateWords: res.data
+        })
+      })
   }
 
   render() {
