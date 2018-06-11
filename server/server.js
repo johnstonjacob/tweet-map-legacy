@@ -12,7 +12,7 @@ app.get('/nationaltrends', (req, res) => {
   let trends = db.getNationalTrends();
   res.send(trends);
 });
-
+//
 app.post('/statepercentages', (req, res) => {
   console.log('POST request for state percentages for ', req.body.word);
   let percents = db.getStatePercentages(req.body);
