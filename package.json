@@ -8,7 +8,8 @@
     "server-dev": "nodemon server/server.js",
     "start": "node server/server.js",
     "react": "webpack -p --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "postinstall": "webpack -p"
   },
   "author": "Blake Estes, Joseph Oh, Michael Panetta, Greg Richardson",
   "license": "ISC",
@@ -36,5 +37,8 @@
     "stopword": "^0.1.10",
     "twit": "^2.2.9",
     "underscore": "^1.9.1"
+  },
+  "engines": {
+    "node": "^8.9.4"
   }
 }
