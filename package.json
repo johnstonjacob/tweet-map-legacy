@@ -1,17 +1,18 @@
 {
-  "name": "tweetmap",
+  "name": "tweetmap-legacy",
   "version": "1.0.0",
   "description": "Mapping tweets",
   "main": "client.jsx",
   "scripts": {
     "react-dev": "webpack -d --watch",
     "server-dev": "nodemon server/server.js",
+    "test": "concurrently \"webpack -d --watch\" \"nodemon server/server.js\"",
     "start": "node server/server.js",
     "react": "webpack -p --watch",
     "build": "webpack",
     "postinstall": "webpack -p"
   },
-  "author": "Blake Estes, Joseph Oh, Michael Panetta, Greg Richardson",
+  "author": "Jacob Johnston, Carter Robinson, Travis Smith, and Mitch Stewart",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -19,6 +20,7 @@
     "babel-loader": "^7.1.4",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "concurrently": "^3.5.1",
     "css-loader": "^0.28.11",
     "style-loader": "^0.21.0",
     "webpack": "^4.10.2",
