@@ -1,3 +1,6 @@
+//Run this file to generate the top 50 Twitter trends, stored in national-trends.json
+//That file will be importable
+
 const axios = require('axios');
 const fs = require('fs');
 
