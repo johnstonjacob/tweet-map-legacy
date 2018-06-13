@@ -2,8 +2,10 @@
 //file will populate the database with each state's top keywords
 
 const mongoose = require("mongoose");
+const dotenv = require('dotenv').config({silent: true});
 mongoose.Promise = global.Promise;
-const mongoPath = process.env.MONGODB_URI || "mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit";
+const mongoPath = process.env.MONGO_URL
+console.log(mongoPath)
 mongoose.connect(mongoPath);
 const db = mongoose.connection;
 const Schema = mongoose.Schema;
