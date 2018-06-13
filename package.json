@@ -9,7 +9,8 @@
     "start": "node server/server.js",
     "react": "webpack -p --watch",
     "build": "webpack",
-    "postinstall": "webpack -p"
+    "postinstall": "webpack -p",
+    "prod": "npm run postinstall && npm run start"
   },
   "author": "Blake Estes, Joseph Oh, Michael Panetta, Greg Richardson",
   "license": "ISC",
@@ -22,15 +23,17 @@
     "css-loader": "^0.28.11",
     "style-loader": "^0.21.0",
     "webpack": "^4.10.2",
-    "webpack-cli": "^2.1.4"
+    "webpack-cli": "^2.1.5"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "datamaps": "^0.5.9",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "mongodb": "^3.0.10",
     "mongoose": "^5.1.3",
+    "nodemon": "^1.17.5",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "remove-punctuation": "0.0.4",
