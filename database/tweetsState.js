@@ -1,3 +1,6 @@
+//Run this file to convert the raw tweets into an importable file
+//Result will be stored in tweets-state.json
+
 const fs = require('fs');
 
 const acronyms = {

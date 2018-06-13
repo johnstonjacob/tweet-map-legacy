@@ -1,3 +1,6 @@
+//Run this file to stream tweets from Twitter, saved to tweets.json
+//Time is set on the last line of the file
+
 const Twit = require('twit');
 const fs = require('fs');
 const db = require('./database.js');

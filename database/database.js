@@ -1,3 +1,6 @@
+//Commenting out the code below and running this
+//file will populate the database with each state's top keywords
+
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 const mongoPath = process.env.MONGODB_URI || 'mongodb://206.189.170.211:27017'; // 'mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit';//
