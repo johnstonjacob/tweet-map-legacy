@@ -138,7 +138,9 @@ export default class Map extends React.Component {
 			<div>
 				<div>
           <form onSubmit={this.handleSubmit}>
+
               <input type="text" placeholder='Search' autoFocus='autofocus' value={this.state.textbox} onChange={this.handleTextboxChange}/>
+
           <input type="submit" value="Populate Map" />
         </form>
         <br></br>
