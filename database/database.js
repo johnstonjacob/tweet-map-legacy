@@ -3,7 +3,7 @@
 
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
-const mongoPath = process.env.MONGODB_URI || 'mongodb://206.189.170.211:27017'; // 'mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit';//
+const mongoPath = process.env.MONGODB_URI || 'mongodb://206.189.170.211:27017/tweet-map'; // 'mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit';//
 mongoose.connect(mongoPath);
 const db = mongoose.connection;
 const Schema = mongoose.Schema;
