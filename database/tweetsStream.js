@@ -1,5 +1,6 @@
 const Twit = require('twit');
 const fs = require('fs');
+const db = require('./database.js');
 
 const twit = new Twit({
   consumer_key:         'm6kmS86SUUK2klF4bLTcOc6On',
@@ -21,11 +22,12 @@ stream.on('tweet', (tweet) => {
   if (tweet.place !== null && tweet.place.country_code === 'US' && (tweet.place.place_type === 'city' || tweet.place.place_type === 'admin')) {
 
     count++;
+
     let tweetText = tweet.text;
 
-    if (count > 1) {
-      writeStream.write(',\n');
-    }
+    // if (count > 1) {
+    //   writeStream.write(',\n');
+    // }
 
     if (tweet.retweeted_status !== undefined) {
       tweetText += " ~ " + tweet.retweeted_status.text;
@@ -34,13 +36,19 @@ stream.on('tweet', (tweet) => {
       tweetText += " ~ " + tweet.quoted_status.text;
     }
 
-    writeStream.write(JSON.stringify({
-      placeType: tweet.place.place_type,
+    // writeStream.write(JSON.stringify({
+    db.saveTweet({
       placeName: tweet.place.name,
       placeFull: tweet.place.full_name,
       country: tweet.place.country_code,
       text: tweetText
-    }));
+    });
+      // placeType: tweet.place.place_type,
+      // placeName: tweet.place.name,
+      // placeFull: tweet.place.full_name,
+      // country: tweet.place.country_code,
+      // text: tweetText
+    // }));
 
   }
 });

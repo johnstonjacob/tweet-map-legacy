@@ -102,7 +102,7 @@ export default class Map extends React.Component {
 		this.setState({
 			colors: colorObj
 		})
-		
+		console.log('COLORS', colorObj);
 	}
 
 	handleDropdown(event) {

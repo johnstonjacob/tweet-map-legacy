@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
-const mongoPath = process.env.MONGODB_URI || "mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit";
+const mongoPath = process.env.MONGODB_URI || 'mongodb://206.189.170.211:27017'; // 'mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit';//
 mongoose.connect(mongoPath);
 const db = mongoose.connection;
 const Schema = mongoose.Schema;
@@ -21,6 +21,9 @@ const stateTweet = mongoose.model("StateTweet",
 
 const stateKeyword = mongoose.model("StateKeyword",
   new Schema({}), "statekeywords");
+
+const Tweet = mongoose.model("Tweet",
+  new Schema({ placeName: String, placeFull: String, country: String, text: String }), "StateTweets");
 
 // const keywordSchema = mongoose.Schema({}, { strict: false, versionKey: false });
 // const stateKeywordCreate = mongoose.model("stateKeyword", keywordSchema);
@@ -159,6 +162,14 @@ const stateKeyword = mongoose.model("StateKeyword",
 //     }
 //   });
 
+const saveStateTweet = (data) => {
+  stateTweet(data).save();
+}
+
+const saveTweet = (data) => {
+  Tweet(data).save();
+}
+
 const getNationalTrends = async () => {
   let res = await nationalTrend.find({ rank: { $lte: 15 } }).select("trend");
   return res;
@@ -221,6 +232,13 @@ const getStatePercentages = async keyword => {
   return percentsObj;
 };
 
-module.exports.getNationalTrends = getNationalTrends;
-module.exports.getStateKeywords = getStateKeywords;
-module.exports.getStatePercentages = getStatePercentages;
+module.exports = {
+  saveTweet: saveTweet,
+  saveStateTweet: saveStateTweet,
+  getNationalTrends: getNationalTrends,
+  getStateKeywords: getStateKeywords,
+  getStatePercentages: getStatePercentages
+}
+// module.exports.getNationalTrends = getNationalTrends;
+// module.exports.getStateKeywords = getStateKeywords;
+// module.exports.getStatePercentages = getStatePercentages;

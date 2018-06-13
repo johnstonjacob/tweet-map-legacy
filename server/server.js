@@ -20,11 +20,11 @@ app.get('/keywords', async (req, res) => {
 });
 
 app.post('/statepercentages', async (req, res) => {
-  console.log('POST request for state percentages for ', req.body.word);
+  console.log('POST request for state percentages for', req.body.word);
   let percents = await db.getStatePercentages(req.body);
   res.send(percents);
 })
 
 app.listen(process.env.PORT || 3000, function() {
-  console.log('Listening on port 3000!');
+  console.log(`Listening on port ${process.env.PORT || 3000}!`);
 });
