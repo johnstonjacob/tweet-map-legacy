@@ -2,7 +2,6 @@
 //Time is set on the last line of the file
 
 const Twit = require('twit');
-const fs = require('fs');
 const db = require('./database.js');
 
 const twit = new Twit({
@@ -13,6 +12,8 @@ const twit = new Twit({
 });
 
 const US = ['-177', '18.0', '-65.0', '72.0'];
+
+// const AUS = ['113.3', '-43.6', '153.6', '-10.7'];
 
 const acronyms = {
   "Alabama": "AL", 
@@ -68,70 +69,65 @@ const acronyms = {
   "Wyoming": "WY", 
 };
 
-const writeStream = fs.createWriteStream('./database/tweets.json');
 let count = 0;
-writeStream.write('[\n');
+
 const stream = twit.stream('statuses/filter', {locations: US});
 
-let stateObj = {};
-
 stream.on('tweet', (tweet) => {
+  count++;
+  console.log(tweet.text);
 
-  if (tweet.place !== null && tweet.place.country_code === 'US' && (tweet.place.place_type === 'city' || tweet.place.place_type === 'admin')) {
-    let state = undefined;
-
-    if (tweet.place.place_type  === 'city') {
-      state = tweet.place.full_name.slice(tweet.place.full_name.length - 2);
-    } else if (tweet.placeType === 'admin' && Object.keys(acronyms).includes(tweet.placeName)){
-      state = acronyms[tweet.placeName];
+  if (tweet.place && (tweet.place.place_type === 'city' || tweet.place.place_type === 'admin')) {
+    if (tweet.place.country_code === 'US') {
+      var state = undefined;
+      if (tweet.place.place_type  === 'city') {
+        // Get state abbreviation from the end of the place name
+        state = tweet.place.full_name.slice(tweet.place.full_name.length - 2);
+      } else {
+        // Remove ", USA" fron the place name and convert to abbreviation
+        let stateName = tweet.place.full_name.slice(0, tweet.place.full_name.length - 5);
+        if (Object.keys(acronyms).includes(stateName)) {
+          state = acronyms[stateName];
+        }
+      }
     }
-
-    if (state !== undefined) {
-      count++;
-      let newText = tweet.text.replace(/,/gi, ' ');
-      newText = newText.replace(/\n/gi, ' ');
-    
-    }
-    console.log(state, tweet.text);
 
     let tweetText = tweet.text;
-
-    // if (count > 1) {
-    //   writeStream.write(',\n');
-    // }
     if (tweet.retweeted_status !== undefined) {
       tweetText += " ~ " + tweet.retweeted_status.text;
     } 
     if (tweet.quoted_status !== undefined) {
       tweetText += " ~ " + tweet.quoted_status.text;
     }
-    
-    // writeStream.write(JSON.stringify({
-      
-      // db.saveStateTweet({
-      //   'state': state,
-      //   'text': tweet.text
-      // })
 
+    // Temporarily using this table just to match the style of the original project
+    if (state !== undefined) {
+      db.saveStateTweet({
+        state: state,
+        text: tweetText
+      });
+    }
+    // This is the real table we will use for both US and international tweets
     db.saveTweet({
-      placeName: tweet.place.name,
-      placeFull: tweet.place.full_name,
+      place: tweet.place.full_name,
+      state: state,
       country: tweet.place.country_code,
-      text: tweetText
+      text: tweetText,
+      username: tweet.user.screen_name,
+      createdAt: tweet.created_at,
+      link: `https://twitter.com/statuses/${tweet.id_str}`,
+      latitude: tweet.place.bounding_box.coordinates[0][0][1],
+      longitude: tweet.place.bounding_box.coordinates[0][0][0],
     });
-      // placeType: tweet.place.place_type,
-      // placeName: tweet.place.name,
-      // placeFull: tweet.place.full_name,
-      // country: tweet.place.country_code,
-      // text: tweetText
-    // }));
-
   }
 });
 
-setTimeout(() => {
+const stopStream = () => {
   stream.stop();
-  writeStream.write('\n]')
-  writeStream.end();
   console.log(`Stored ${count} tweets!`);
-}, 60 * 1000);//900000);
+}
+
+// Just keeping this temporarily until we get the cron job working
+setTimeout(() => {
+  stopStream();
+}, 15 * 60 * 1000);
