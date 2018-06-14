@@ -27,6 +27,10 @@ export default class Map extends React.Component {
 		this.getNationalTrends();
 	}
 
+
+	//
+	// ─── GET TRENDS ─────────────────────────────────────────────────────────────────
+	//
 	getNationalTrends() {
 		axios.get('/nationaltrends')
 			.then((response) => {
@@ -38,6 +42,10 @@ export default class Map extends React.Component {
 			})
 	}
 
+
+	//
+	// ─── GET TWEET DATA ─────────────────────────────────────────────────────────────
+	//
 	postStatePercentages(searchTerm) {
 		console.log('Keyword:', searchTerm)
 		if (searchTerm !== '') {
@@ -48,6 +56,10 @@ export default class Map extends React.Component {
 		}
 	}
 
+
+	//
+	// ─── MANIPULATE VIEW DATA ───────────────────────────────────────────────────────
+	//
 	setPercentages(data) {
 		let statesCopy = Object.assign({}, this.state.states);
 		//Clear percentages
@@ -105,6 +117,10 @@ export default class Map extends React.Component {
 
 	}
 
+
+	//
+	// ─── HANDLE UI ELEMENTS ─────────────────────────────────────────────────────────
+	//
 	handleDropdown(event) {
 		this.postStatePercentages(event.target.value);
 		this.setState({
@@ -133,6 +149,10 @@ export default class Map extends React.Component {
 		return input.replace(new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)', 'ig'), '$1<u>$2</u>$3');
 	}
 
+
+	//
+	// ─── RENDER ─────────────────────────────────────────────────────────────────────
+	//
 	render() {
 		return (
 			<div>

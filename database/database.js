@@ -2,16 +2,15 @@
 // file will populate the database with each state's top keywords
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config({ silent: true });
+const _ = require('underscore');
+const bodyParser = require('body-parser');
+
 
 mongoose.Promise = global.Promise;
 const mongoPath = process.env.MONGO_URL;
 mongoose.connect(mongoPath);
 const db = mongoose.connection;
 const Schema = mongoose.Schema;
-const sw = require('stopword');
-const _ = require('underscore');
-const bodyParser = require('body-parser');
-const rp = require('remove-punctuation');
 
 db.on('error', console.error.bind(console, 'Connection Error:'));
 db.once('open', () => {
@@ -59,7 +58,7 @@ const Tweet = mongoose.model(
 
 
 //
-// ─── METHODS ────────────────────────────────────────────────────────────────────
+// ─── SAVE TO DB ─────────────────────────────────────────────────────────────────
 //
 const saveStateTweet = (data) => {
   stateTweet(data).save();
@@ -77,14 +76,14 @@ const saveGlobalTrend = (data) => {
   globalTrend(data).save();
 };
 
-const getNationalTrends = async () => {
-  const res = await nationalTrend.find({ rank: { $lte: 15 } }).select('trend');
-  return res;
-};
 
-const getStateKeywords = async () => {
-  const res = await stateKeyword.find({});
-  return res;
+//
+// ─── MANIPULATE DATA ────────────────────────────────────────────────────────────
+//
+const getNationalTrends = () => nationalTrend.find({ rank: { $lte: 15 } }).select('trend');
+
+const getStateKeywords = () => {
+  stateKeyword.find({});
 };
 
 const getStatePercentages = async (keyword) => {
@@ -136,7 +135,58 @@ const getStatePercentages = async (keyword) => {
 
   return percentsObj;
 };
-// ────────────────────────────────────────────────────────────────────────────────
+
+const getStateSentiment = async (keyword) => {
+  const sentiments = await stateTweet.aggregate([
+    {
+      $group: {
+        _id: '$state',
+        state: { $first: '$state' },
+        totalCount: { $sum: 1 },
+        text: { $push: '$text' },
+      },
+    },
+    {
+      $unwind: '$text',
+    },
+    {
+      $match: {
+        text: { $regex: keyword.word, $options: 'i' },
+      },
+    },
+    {
+      $group: {
+        _id: '$state',
+        state: { $first: '$state' },
+        totalCount: { $first: '$totalCount' },
+        matchCount: { $sum: 1 },
+        text: { $push: '$text' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        state: 1,
+        text: 1,
+      },
+    },
+  ]);
+
+  const sentimentsObj = {};
+
+  sentiments.forEach((stateObj) => {
+
+  });
+
+  for (const val of percents) {
+    percentsObj[val.state] = {
+      fillKey: Math.round(val.percent * 100) / 100,
+      text: val.text.slice(0, 5),
+    };
+  }
+
+  return percentsObj;
+};
 
 module.exports = {
   saveTweet,
