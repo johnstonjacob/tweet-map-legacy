@@ -1,6 +1,5 @@
 // Commenting out the code below and running this
 // file will populate the database with each state's top keywords
-
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config({ silent: true });
 
@@ -19,6 +18,10 @@ db.once('open', () => {
   console.log('Connection Established.');
 });
 
+
+//
+// ─── MODELS ─────────────────────────────────────────────────────────────────────
+//
 const nationalTrend = mongoose.model(
   'NationalTrend',
   new Schema({ trend: String, rank: Number, date: String }), 'NationalTrends',
@@ -42,147 +45,22 @@ const stateKeyword = mongoose.model(
 const Tweet = mongoose.model(
   'Tweet',
   new Schema({
-    place: String, state: String, country: String, text: String, username: String, link: String, createdAt: Date, latitude: Number, longitude: Number,
+    place: String,
+    state: String,
+    country: String,
+    text: String,
+    username: String,
+    link: String,
+    createdAt: Date,
+    latitude: Number,
+    longitude: Number,
   }), 'Tweets',
 );
 
-// const keywordSchema = mongoose.Schema({}, { strict: false, versionKey: false });
-// const stateKeywordCreate = mongoose.model("stateKeyword", keywordSchema);
 
-// const states = [
-//   "AL",
-//   "AK",
-//   "AZ",
-//   "AR",
-//   "CA",
-//   "CO",
-//   "CT",
-//   "DE",
-//   "DC",
-//   "FL",
-//   "GA",
-//   "HI",
-//   "ID",
-//   "IL",
-//   "IN",
-//   "IA",
-//   "KS",
-//   "KY",
-//   "LA",
-//   "ME",
-//   "MD",
-//   "MA",
-//   "MI",
-//   "MN",
-//   "MS",
-//   "MO",
-//   "MT",
-//   "NE",
-//   "NV",
-//   "NH",
-//   "NJ",
-//   "NM",
-//   "NY",
-//   "NC",
-//   "ND",
-//   "OH",
-//   "OK",
-//   "OR",
-//   "PA",
-//   "RI",
-//   "SC",
-//   "SD",
-//   "TN",
-//   "TX",
-//   "UT",
-//   "VT",
-//   "VA",
-//   "WA",
-//   "WV",
-//   "WI",
-//   "WY"
-// ];
-
-// let totalTweetArray = [];
-// let fiftyplusstates = [];
-// stateTweet.find()
-//   .exec()
-//   .then(res => {
-//     //Go through list of a state's tweets and format
-//     for (let doc of res) {
-//       let message = doc.text.split(" ");
-//       for (let state of states) {
-//         if (doc.state === state) {
-//           let obj = {};
-//           let message = doc.text.split(" ");
-//           let keywordCollection = sw.removeStopwords(message);
-//           let keyword = keywordCollection.map(word => {
-//             word = rp(word).toLowerCase();
-//             if (
-//               typeof word === "string" &&
-//               typeof word !== "undefined" &&
-//               word !== "" &&
-//               word !== " " &&
-//               word !== "-"
-//             ) {
-//               return word;
-//             }
-//           });
-//           let stateKeyWords = _.countBy(keyword);
-//           obj.state = state;
-//           obj.keywords = [stateKeyWords];
-//           totalTweetArray.push(obj);
-//         }
-//       }
-//     }
-
-//     for (let state of states) {
-//       //iterates through the list of 50 states (+DC)
-//       let stateObj = {};
-//       let stateName = {};
-//       let stateList = {};
-//       stateObj.trends = [];
-
-//       for (let tweet of totalTweetArray) {
-//         //each state has a list of tweets associated with it. This consolidates those into one list
-//         if (tweet.state === state) {
-//           tweet.keywords.forEach(list => {
-//             if (tweet.state === state) {
-//               let combinedStateKeywords = Object.assign(stateList, list);
-//               stateList = combinedStateKeywords;
-//             }
-//           });
-//         }
-//       }
-//       for (let key in stateList) {
-//         //formatting based on The Ohzone's Request, {word: "apple", count: 2}
-//         let word = "";
-//         let count = "";
-//         word = key;
-//         count = stateList[key];
-//         stateObj.trends.push({ word: word, count: count });
-//       }
-//       stateObj.trends.sort((a, b) => b.count - a.count); //after formatting, sort by count and slice the top 10
-//       stateObj.trends = stateObj.trends.slice(0, 10);
-
-//       let topKeywordsByState = { state: state, trends: stateObj.trends };
-//       fiftyplusstates.push(topKeywordsByState);
-//     }
-
-//     for (let state of fiftyplusstates) {
-//       console.log('CREATING');
-//       //saves each as a document to mongodb, notice the schema for stateKeyword is a blank canvas with "strict: false", used this because mongodb does not allow dynamic keys in schema
-//         let data = new stateKeywordCreate({ state: state.state, keywords: state.trends });
-//         data.save(function(err) {
-//           if (err) {
-//             console.log("error");
-//           }
-//           console.log("saved");
-//         });
-
-//     }
-//   });
-
+//
+// ─── METHODS ────────────────────────────────────────────────────────────────────
+//
 const saveStateTweet = (data) => {
   stateTweet(data).save();
 };
@@ -258,6 +136,7 @@ const getStatePercentages = async (keyword) => {
 
   return percentsObj;
 };
+// ────────────────────────────────────────────────────────────────────────────────
 
 module.exports = {
   saveTweet,
