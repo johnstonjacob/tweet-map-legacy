@@ -21,6 +21,7 @@ export default class Map extends React.Component {
 		}
 		this.handleDropdown = this.handleDropdown.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
 		this.handleTextboxChange = this.handleTextboxChange.bind(this);
 	}
 	componentWillMount() {
@@ -56,6 +57,16 @@ export default class Map extends React.Component {
 		}
 	}
 
+	postStateSentiments(searchTerm) {
+		console.log('Keyword:', searchTerm)
+		if (searchTerm !== '') {
+			axios.post('/statesentiments', { word: searchTerm })
+				.then((response) => {
+					this.setSentiments(response.data);
+				})
+		}
+	}
+
 
 	//
 	// ─── MANIPULATE VIEW DATA ───────────────────────────────────────────────────────
@@ -73,6 +84,28 @@ export default class Map extends React.Component {
 			if (data[state]) {
 				statesCopy[state].fillKey = data[state].fillKey;
 				statesCopy[state].text = data[state].text;
+			}
+		}
+		this.setState({
+			states: statesCopy,
+		});
+		this.setFills();
+		setTimeout(() => console.log(this.state.states), 1000);
+	}
+
+	setSentiments(data) {
+		let statesCopy = Object.assign({}, this.state.states);
+		//Clear percentages
+		for (let state in statesCopy) {
+			statesCopy[state].fillKey = 0;
+			statesCopy[state].text = [];
+		}
+
+		//Populate percentages
+		for (let state in statesCopy) {
+			if (data[state]) {
+				console.log(data[state].fillKey);
+				statesCopy[state].fillKey = data[state].fillKey;
 			}
 		}
 		this.setState({
@@ -145,6 +178,15 @@ export default class Map extends React.Component {
 		event.preventDefault();
 	}
 
+	handleSentimentSubmit(event) {
+		this.postStateSentiments(this.state.textbox);
+		this.setState({
+			textbox: '',
+			searched: this.state.textbox
+		});
+		event.preventDefault();
+	}
+
 	makeUnderline(input, wordsToUnderline) {
 		return input.replace(new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)', 'ig'), '$1<u>$2</u>$3');
 	}
@@ -162,6 +204,7 @@ export default class Map extends React.Component {
 						<input type="text" placeholder='Search' autoFocus='autofocus' value={this.state.textbox} onChange={this.handleTextboxChange} />
 
 						<input type="submit" value="Populate Map" />
+						<button onClick={this.handleSentimentSubmit}></button>
 					</form>
 					<br></br>
 					<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>

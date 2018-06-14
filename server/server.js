@@ -32,12 +32,17 @@ app.get('/keywords', async (req, res) => {
 
 app.post('/statepercentages', async (req, res) => {
   const percents = await db.getStatePercentages(req.body);
+  console.log('PERCENT DATA', percents);
   res.send(percents);
 });
 
-app.post('/statesentiments', async (req, res) => {
-  const sentiments = await db.getStateSentiments(req.body);
-  res.send(sentiments);
+app.post('/statesentiments', (req, res) => {
+  db.getStateSentiments(req.body)
+    .then((sentiments) => {
+      console.log('SENTIMENT DATA', sentiments);
+      res.send(sentiments);
+    })
+    .catch(console.log);
 });
 
 app.listen(process.env.PORT || 3000, () => {

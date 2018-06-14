@@ -175,14 +175,22 @@ const getStateSentiments = async (keyword) => {
   ]);
 
   const sentimentsObj = {};
+  const promiseArr = [];
+  stateTweets.forEach((stateObj) => {
+    promiseArr.push(getSentimentFromTweets(stateObj.text)
+      .then((results) => {
+        const sentiment = results[0] ?
+          JSON.parse(results[0].replace(/\n/g, '')).sentiment.document.score
+          : 0;
+        sentimentsObj[stateObj.state] = {
+          fillKey: sentiment,
+        };
+      })
+      .catch(console.log));
+  });
 
-  for (const stateObj of stateTweets) {
-    sentimentsObj[stateObj.state] = {
-      fillKey: await getSentimentFromTweets(stateObj.text),
-    };
-  }
-
-  return sentimentsObj;
+  return axios.all(promiseArr)
+    .then(() => sentimentsObj);
 };
 
 module.exports = {
