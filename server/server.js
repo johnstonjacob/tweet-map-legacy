@@ -35,6 +35,11 @@ app.post('/statepercentages', async (req, res) => {
   res.send(percents);
 });
 
+app.post('/statesentiments', async (req, res) => {
+  const sentiments = await db.getStateSentiments(req.body);
+  res.send(sentiments);
+});
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Listening on port ${process.env.PORT || 3000}!`);
 });

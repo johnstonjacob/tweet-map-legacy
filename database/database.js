@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv').config({ silent: true });
 const _ = require('underscore');
 const bodyParser = require('body-parser');
+const axios = require('axios');
+const getSentimentFromTweets = require('./sentiment');
 
 
 mongoose.Promise = global.Promise;
@@ -136,8 +138,8 @@ const getStatePercentages = async (keyword) => {
   return percentsObj;
 };
 
-const getStateSentiment = async (keyword) => {
-  const sentiments = await stateTweet.aggregate([
+const getStateSentiments = async (keyword) => {
+  const stateTweets = await stateTweet.aggregate([
     {
       $group: {
         _id: '$state',
@@ -174,18 +176,13 @@ const getStateSentiment = async (keyword) => {
 
   const sentimentsObj = {};
 
-  sentiments.forEach((stateObj) => {
-
-  });
-
-  for (const val of percents) {
-    percentsObj[val.state] = {
-      fillKey: Math.round(val.percent * 100) / 100,
-      text: val.text.slice(0, 5),
+  for (const stateObj of stateTweets) {
+    sentimentsObj[stateObj.state] = {
+      fillKey: await getSentimentFromTweets(stateObj.text),
     };
   }
 
-  return percentsObj;
+  return sentimentsObj;
 };
 
 module.exports = {
@@ -196,4 +193,5 @@ module.exports = {
   getNationalTrends,
   getStateKeywords,
   getStatePercentages,
+  getStateSentiments,
 };

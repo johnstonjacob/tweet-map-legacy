@@ -44,7 +44,8 @@
     "stopword": "^0.1.10",
     "twit": "^2.2.9",
     "underscore": "^1.9.1",
-    "validator": "^10.3.0"
+    "validator": "^10.3.0",
+    "watson-developer-cloud": "^3.5.0"
   },
   "engines": {
     "node": "^8.9.4"
