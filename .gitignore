@@ -5,3 +5,4 @@ database/tweets-state.json
 database/tweets.json
 node_modules
 package-lock.json
+.env

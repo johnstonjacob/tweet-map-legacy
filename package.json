@@ -30,6 +30,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "datamaps": "^0.5.9",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "mongodb": "^3.0.10",
     "mongoose": "^5.1.3",

@@ -2,7 +2,7 @@
 //Time is set on the last line of the file
 
 const Twit = require('twit');
-const fs = require('fs');
+const db = require('./database.js');
 
 const twit = new Twit({
   consumer_key:         'm6kmS86SUUK2klF4bLTcOc6On',
@@ -13,23 +13,86 @@ const twit = new Twit({
 
 const US = ['-177', '18.0', '-65.0', '72.0'];
 
-const writeStream = fs.createWriteStream('./database/tweets.json');
+// const AUS = ['113.3', '-43.6', '153.6', '-10.7'];
+
+const acronyms = {
+  "Alabama": "AL", 
+  "Alaska": "AK", 
+  "Arizona": "AZ", 
+  "Arkansas": "AR", 
+  "California": "CA", 
+  "Colorado": "CO", 
+  "Connecticut": "CT", 
+  "Delaware": "DE", 
+  "District Of Columbia": "DC", 
+  "Florida": "FL", 
+  "Georgia": "GA", 
+  "Hawaii": "HI", 
+  "Idaho": "ID", 
+  "Illinois": "IL", 
+  "Indiana": "IN", 
+  "Iowa": "IA", 
+  "Kansas": "KS", 
+  "Kentucky": "KY", 
+  "Louisiana": "LA", 
+  "Maine": "ME", 
+  "Maryland": "MD", 
+  "Massachusetts": "MA", 
+  "Michigan": "MI", 
+  "Minnesota": "MN", 
+  "Mississippi": "MS", 
+  "Missouri": "MO", 
+  "Montana": "MT", 
+  "Nebraska": "NE", 
+  "Nevada": "NV", 
+  "New Hampshire": "NH", 
+  "New Jersey": "NJ", 
+  "New Mexico": "NM", 
+  "New York": "NY", 
+  "North Carolina": "NC", 
+  "North Dakota": "ND", 
+  "Ohio": "OH", 
+  "Oklahoma": "OK", 
+  "Oregon": "OR", 
+  "Pennsylvania": "PA", 
+  "Rhode Island": "RI", 
+  "South Carolina": "SC", 
+  "South Dakota": "SD", 
+  "Tennessee": "TN", 
+  "Texas": "TX", 
+  "Utah": "UT", 
+  "Vermont": "VT", 
+  "Virginia": "VA", 
+  "Washington": "WA", 
+  "West Virginia": "WV", 
+  "Wisconsin": "WI", 
+  "Wyoming": "WY", 
+};
+
 let count = 0;
-writeStream.write('[\n');
+
 const stream = twit.stream('statuses/filter', {locations: US});
 
-let stateObj = {};
-
 stream.on('tweet', (tweet) => {
-  if (tweet.place !== null && tweet.place.country_code === 'US' && (tweet.place.place_type === 'city' || tweet.place.place_type === 'admin')) {
+  count++;
+  console.log(tweet.text);
 
-    count++;
-    let tweetText = tweet.text;
-
-    if (count > 1) {
-      writeStream.write(',\n');
+  if (tweet.place && (tweet.place.place_type === 'city' || tweet.place.place_type === 'admin')) {
+    if (tweet.place.country_code === 'US') {
+      var state = undefined;
+      if (tweet.place.place_type  === 'city') {
+        // Get state abbreviation from the end of the place name
+        state = tweet.place.full_name.slice(tweet.place.full_name.length - 2);
+      } else {
+        // Remove ", USA" fron the place name and convert to abbreviation
+        let stateName = tweet.place.full_name.slice(0, tweet.place.full_name.length - 5);
+        if (Object.keys(acronyms).includes(stateName)) {
+          state = acronyms[stateName];
+        }
+      }
     }
 
+    let tweetText = tweet.text;
     if (tweet.retweeted_status !== undefined) {
       tweetText += " ~ " + tweet.retweeted_status.text;
     } 
@@ -37,20 +100,34 @@ stream.on('tweet', (tweet) => {
       tweetText += " ~ " + tweet.quoted_status.text;
     }
 
-    writeStream.write(JSON.stringify({
-      placeType: tweet.place.place_type,
-      placeName: tweet.place.name,
-      placeFull: tweet.place.full_name,
+    // Temporarily using this table just to match the style of the original project
+    if (state !== undefined) {
+      db.saveStateTweet({
+        state: state,
+        text: tweetText
+      });
+    }
+    // This is the real table we will use for both US and international tweets
+    db.saveTweet({
+      place: tweet.place.full_name,
+      state: state,
       country: tweet.place.country_code,
-      text: tweetText
-    }));
-
+      text: tweetText,
+      username: tweet.user.screen_name,
+      createdAt: tweet.created_at,
+      link: `https://twitter.com/statuses/${tweet.id_str}`,
+      latitude: tweet.place.bounding_box.coordinates[0][0][1],
+      longitude: tweet.place.bounding_box.coordinates[0][0][0],
+    });
   }
 });
 
-setTimeout(() => {
+const stopStream = () => {
   stream.stop();
-  writeStream.write('\n]')
-  writeStream.end();
   console.log(`Stored ${count} tweets!`);
-}, 900000);
+}
+
+// Just keeping this temporarily until we get the cron job working
+setTimeout(() => {
+  stopStream();
+}, 15 * 60 * 1000);

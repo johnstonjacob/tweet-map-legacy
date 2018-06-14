@@ -2,8 +2,9 @@
 //file will populate the database with each state's top keywords
 
 const mongoose = require("mongoose");
+const dotenv = require('dotenv').config({silent: true});
 mongoose.Promise = global.Promise;
-const mongoPath = process.env.MONGODB_URI || "mongodb://ohzone:0hzone@ds253879.mlab.com:53879/teamtwit";
+const mongoPath = process.env.MONGO_URL;
 mongoose.connect(mongoPath);
 const db = mongoose.connection;
 const Schema = mongoose.Schema;
@@ -19,11 +20,17 @@ db.once("open", function() {
 const nationalTrend = mongoose.model("NationalTrend",
   new Schema({ trend: String, rank: Number, date: String }), "NationalTrends");
 
+const globalTrend = mongoose.model("GlobalTrend",
+  new Schema({ trend: String, rank: Number, date: String }), "GlobalTrends");
+
 const stateTweet = mongoose.model("StateTweet",
   new Schema({ state: String, text: String }), "StateTweets");
 
 const stateKeyword = mongoose.model("StateKeyword",
   new Schema({}), "statekeywords");
+
+const Tweet = mongoose.model("Tweet",
+  new Schema({ place: String, state: String, country: String, text: String, username: String, link: String, createdAt: Date, latitude: Number, longitude: Number}), "Tweets");
 
 // const keywordSchema = mongoose.Schema({}, { strict: false, versionKey: false });
 // const stateKeywordCreate = mongoose.model("stateKeyword", keywordSchema);
@@ -162,6 +169,22 @@ const stateKeyword = mongoose.model("StateKeyword",
 //     }
 //   });
 
+const saveStateTweet = (data) => {
+  stateTweet(data).save();
+}
+
+const saveTweet = (data) => {
+  Tweet(data).save();
+}
+
+const saveNationalTrend = (data) => {
+  nationalTrend(data).save();
+}
+
+const saveGlobalTrend = (data) => {
+  globalTrend(data).save();
+}
+
 const getNationalTrends = async () => {
   let res = await nationalTrend.find({ rank: { $lte: 15 } }).select("trend");
   return res;
@@ -212,18 +235,22 @@ const getStatePercentages = async keyword => {
   ]);
 
   let percentsObj = {};
-  let count = 0;
   for (let val of percents) {
     percentsObj[val.state] = {
       fillKey: Math.round(val.percent * 100) / 100,
       text: val.text.slice(0, 5)
     };
-    count++;
   }
 
   return percentsObj;
 };
 
-module.exports.getNationalTrends = getNationalTrends;
-module.exports.getStateKeywords = getStateKeywords;
-module.exports.getStatePercentages = getStatePercentages;
+module.exports = {
+  saveTweet: saveTweet,
+  saveStateTweet: saveStateTweet,
+  saveNationalTrend: saveNationalTrend,
+  saveGlobalTrend: saveGlobalTrend,
+  getNationalTrends: getNationalTrends,
+  getStateKeywords: getStateKeywords,
+  getStatePercentages: getStatePercentages
+};
