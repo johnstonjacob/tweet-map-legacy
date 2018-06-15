@@ -82,7 +82,7 @@ const cronJob = new CronJob(
     }
 
     // Create a new stream
-    stream = twit.stream('statuses/filter', { locations: US });
+    stream = twit.stream('statuses/sample');
 
     // Start the new stream
     stream.on('tweet', (tweet) => {
@@ -112,14 +112,6 @@ const cronJob = new CronJob(
           tweetText += ` ~ ${tweet.quoted_status.text}`;
         }
 
-        // Temporarily using this table just to match the style of the original project
-        if (state !== undefined) {
-          db.saveStateTweet({
-            state,
-            text: tweetText,
-          });
-        }
-        // This is the real table we will use for both US and international tweets
         db.saveTweet({
           place: tweet.place.full_name,
           state,
@@ -130,6 +122,7 @@ const cronJob = new CronJob(
           link: `https://twitter.com/statuses/${tweet.id_str}`,
           latitude: tweet.place.bounding_box.coordinates[0][0][1],
           longitude: tweet.place.bounding_box.coordinates[0][0][0],
+          radius: 2.5,
         });
       }
     });

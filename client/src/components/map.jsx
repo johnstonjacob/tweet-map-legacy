@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
+import { country_codes } from './country-codes.js';
+
 export default class Map extends React.Component {
 	constructor() {
 		super();
@@ -29,16 +31,11 @@ export default class Map extends React.Component {
 			scope: scope
 		});
 		if (scope === "world") {
-			this.setState({
-				states: [],
-			})
+			this.useCountries();
 		} else {
 			this.useAmericanStates();
 		}
-		this.handleDropdown = this.handleDropdown.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
-		this.handleTextboxChange = this.handleTextboxChange.bind(this);
+		this.postStatePercentages();
 	}
 	componentWillMount() {
 		this.getNationalTrends();
@@ -94,7 +91,6 @@ export default class Map extends React.Component {
 			statesCopy[state].fillKey = 0;
 			statesCopy[state].text = [];
 		}
-
 		//Populate percentages
 		for (let state in statesCopy) {
 			if (data[state]) {
@@ -201,6 +197,12 @@ export default class Map extends React.Component {
 		});
 	}
 
+	setCountryCodes() {
+		// this.state.states.forEach((
+
+		// ))
+	}
+
 
 	//
 	// ─── HANDLE UI ELEMENTS ─────────────────────────────────────────────────────────
@@ -252,6 +254,12 @@ export default class Map extends React.Component {
 					VA: {}, VT: {}, WA: {}, WV: {}, WY: {}, CA: {}, CT: {}, AK: {}, AR: {}, AL: {} 
 			}
 		});
+	}
+
+	useCountries() {
+		this.setState({
+			states: country_codes,
+		})
 	}
 	//
 	// ─── RENDER ─────────────────────────────────────────────────────────────────────
