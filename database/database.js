@@ -193,7 +193,7 @@ const getStateKeywords = async () => {
 }
 
 const getStatePercentages = async keyword => {
-  let percents = await stateTweet.aggregate([
+  let percents = await Tweet.aggregate([
     {
       $group: {
         _id: "$state",
