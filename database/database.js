@@ -58,10 +58,6 @@ const Tweet = mongoose.model(
   }), 'Tweets',
 );
 
-const Bubble = mongoose.model("Bubble",
-  new Schema({ place: String, state: String, country: String, text: String, username: String, link: String, createdAt: Date, latitude: Number, longitude: Number, radius: Number}), "Bubbles");
-
-
 //
 // ─── SAVE TO DB ─────────────────────────────────────────────────────────────────
 //
@@ -91,7 +87,7 @@ const getStateKeywords = () => {
   stateKeyword.find({});
 };
 
-const getStatePercentagessfr = async (keyword) => {
+const getStatePercentages = async (keyword) => {
   const percents = await Bubble.aggregate([
     {
       $group: {
@@ -141,8 +137,8 @@ const getStatePercentagessfr = async (keyword) => {
   return percentsObj;
 };
 
-const getStatePercentages = async (keyword) => {
-  const percents = await Bubble.aggregate([
+const getCountryPercentages = async (keyword) => {
+  const percents = await Tweet.aggregate([
     {
       $group: {
         _id: '$country',
@@ -192,7 +188,7 @@ const getStatePercentages = async (keyword) => {
 };
 
 const getStateSentiments = async (keyword) => {
-  const stateTweets = await Bubble.aggregate([
+  const stateTweets = await Tweet.aggregate([
     {
       $group: {
         _id: '$state',
@@ -256,6 +252,6 @@ module.exports = {
   getNationalTrends,
   getStateKeywords,
   getStatePercentages,
-  // getCountryPercentages,
+  getCountryPercentages,
   getStateSentiments,
 };

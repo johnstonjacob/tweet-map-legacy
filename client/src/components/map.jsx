@@ -35,10 +35,6 @@ export default class Map extends React.Component {
 		} else {
 			this.useAmericanStates();
 		}
-		this.postStatePercentages();
-	}
-	componentWillMount() {
-		this.getNationalTrends();
 	}
 
 
@@ -64,6 +60,16 @@ export default class Map extends React.Component {
 		console.log('Keyword:', searchTerm)
 		if (searchTerm !== '') {
 			axios.post('/statepercentages', { word: searchTerm })
+				.then((response) => {
+					this.setPercentages(response.data);
+				})
+		}
+	}
+
+	postCountryPercentages(searchTerm) {
+		console.log('Keyword:', searchTerm)
+		if (searchTerm !== '') {
+			axios.post('/countrypercentages', { word: searchTerm })
 				.then((response) => {
 					this.setPercentages(response.data);
 				})
@@ -197,18 +203,14 @@ export default class Map extends React.Component {
 		});
 	}
 
-	setCountryCodes() {
-		// this.state.states.forEach((
-
-		// ))
-	}
-
 
 	//
 	// ─── HANDLE UI ELEMENTS ─────────────────────────────────────────────────────────
 	//
 	handleDropdown(event) {
-		this.postStatePercentages(event.target.value);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(event.target.value)
+			: this.postCountryPercentages(event.target.value)
 		this.setState({
 			textbox: '',
 			searched: event.target.value
@@ -223,7 +225,9 @@ export default class Map extends React.Component {
 	}
 
 	handleSubmit(event) {
-		this.postStatePercentages(this.state.textbox);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(this.state.textbox)
+			: this.postCountryPercentages(this.state.textbox)
 		this.setState({
 			textbox: '',
 			searched: this.state.textbox

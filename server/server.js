@@ -36,6 +36,11 @@ app.post('/statepercentages', async (req, res) => {
   res.send(percents);
 });
 
+app.post('/countrypercentages', async (req, res) => {
+  const percents = await db.getCountryPercentages(req.body);
+  res.send(percents);
+});
+
 app.post('/statesentiments', (req, res) => {
   db.getStateSentiments(req.body)
     .then((sentiments) => {
