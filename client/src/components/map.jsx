@@ -89,7 +89,7 @@ export default class Map extends React.Component {
 		this.setState({
 			states: statesCopy,
 		});
-		this.setFills();
+		this.setPercentageFills();
 		setTimeout(() => console.log(this.state.states), 1000);
 	}
 
@@ -111,7 +111,7 @@ export default class Map extends React.Component {
 		this.setState({
 			states: statesCopy,
 		});
-		this.setFills();
+		this.setSentimentFills();
 		setTimeout(() => console.log(this.state.states), 1000);
 	}
 
@@ -123,7 +123,7 @@ export default class Map extends React.Component {
 		this.setState({ states: statesCopy });
 	}
 
-	setFills() {
+	setPercentageFills() {
 		//Find lowest and highest percentages to make color gradient
 		let lowest = 100, highest = 0, sumPercentage = 0, count = 0, mean, colors;
 		let colorObj = {};
@@ -142,12 +142,25 @@ export default class Map extends React.Component {
 			colors = d3.scale.linear().domain([lowest, highest]).range(['#ABDDA4', '#ABDDA4']);
 		}
 		for (let state in this.state.states) {
-			colorObj[this.state.states[state].fillKey] = colors(this.state.states[state].fillKey)
+			colorObj[this.state.states[state].fillKey] = colors(this.state.states[state].fillKey);
 		}
 		this.setState({
 			colors: colorObj
-		})
+		});
+	}
 
+
+	setSentimentFills() {
+		let colorObj = {};
+		//Create static gradient based on positive and negative sentiments
+		let colors = d3.scale.linear().domain([-1, 0, 1]).range(['#d10000', '#dbdbdb', '#00bc03']);
+		for (let state in this.state.states) {
+			colorObj[this.state.states[state].fillKey] = colors(this.state.states[state].fillKey);
+		}
+		console.log('COLOROBJ', colorObj);
+		this.setState({
+			colors: colorObj
+		});
 	}
 
 
