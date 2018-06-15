@@ -88,7 +88,7 @@ const getStateKeywords = () => {
 };
 
 const getStatePercentages = async (keyword) => {
-  const percents = await Bubble.aggregate([
+  const percents = await Tweet.aggregate([
     {
       $group: {
         _id: '$state',
