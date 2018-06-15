@@ -35,7 +35,15 @@ export default class Map extends React.Component {
 		} else {
 			this.useAmericanStates();
 		}
+		this.handleDropdown = this.handleDropdown.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
+		this.handleTextboxChange = this.handleTextboxChange.bind(this);
 	}
+	componentWillMount() {
+		this.getNationalTrends();
+	}
+
 
 	//
 	// ─── GET TRENDS ─────────────────────────────────────────────────────────────────
@@ -102,6 +110,28 @@ export default class Map extends React.Component {
 	}
 
 	setSentiments(data) {
+		let statesCopy = Object.assign({}, this.state.states);
+		//Clear percentages
+		for (let state in statesCopy) {
+			statesCopy[state].fillKey = 0;
+			statesCopy[state].text = [];
+		}
+
+		//Populate percentages
+		for (let state in statesCopy) {
+			if (data[state]) {
+				console.log(data[state].fillKey);
+				statesCopy[state].fillKey = data[state].fillKey;
+			}
+		}
+		this.setState({
+			states: statesCopy,
+		});
+		this.setSentimentFills();
+		setTimeout(() => console.log(this.state.states), 1000);
+	}
+
+	setTrends(data) {
 		let statesCopy = Object.assign({}, this.state.states);
 		//Clear percentages
 		for (let state in statesCopy) {
