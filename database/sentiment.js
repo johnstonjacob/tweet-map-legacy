@@ -1,6 +1,6 @@
 const axios = require('axios');
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
-const request = require('request');
+const RateLimiter = require('request-rate-limiter');
 const sw = require('stopword');
 const rp = require('remove-punctuation');
 
@@ -17,25 +17,40 @@ const getSentimentFromTweets = (tweetTextArray) => {
   cleanedUpText = sw.removeStopwords(cleanedUpText).join(' ');
 
   // Split the text into groups of 10K characters
-  let tenKCharGroups = [];
+  const tenKCharGroups = [];
   while (cleanedUpText.length > 10000) {
     tenKCharGroups.push(cleanedUpText.slice(0, 10000));
     cleanedUpText = cleanedUpText.slice(10000);
   }
-  tenKCharGroups = tenKCharGroups.slice(0, 1);
+  tenKCharGroups.push(cleanedUpText);
 
   //
   // ─── IBM API ────────────────────────────────────────────────────────────────────
   //
+  const limiter = new RateLimiter();
+
   const promiseArr = [];
   tenKCharGroups.forEach((group) => {
     const parameters = {
       features: { sentiment: {} },
       text: group,
     };
+    // Limit the rate of the API calls so as not to get a 429 code
     promiseArr.push(new Promise((resolve, reject) => {
-      natural_language_understanding.analyze(parameters, (err, response) => {
-        if (err) { reject(err); } else { resolve(JSON.stringify(response, null, 2)); }
+      limiter.request((err, backoff) => {
+        if (err) {
+          reject(err);
+        } else {
+          natural_language_understanding.analyze(parameters, (err, response) => {
+            if (err && err.code === 429) {
+              backoff();
+            } else if (err) {
+              console.log(err);
+            } else {
+              resolve(JSON.stringify(response, null, 2));
+            }
+          });
+        }
       });
     }));
   });
