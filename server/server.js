@@ -1,30 +1,59 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const db = require('../database/database');
+const {cronJob} = require('../database/tweetsStream');
+const app = (module.exports = express());
+const auth = require('./auth');
+const User = require('../database/user');
 
-var app = express();
-
-app.use(express.static(__dirname + '/../client/dist/'));
+//
+// ─── MIDDLEWARE ─────────────────────────────────────────────────────────────────
+//
+app.use(express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
+app.use(morgan('dev'));
+//cronJob.start();
+cronJob.stop();
 
+//
+// ─── NATIVE ENDPOINTS ───────────────────────────────────────────────────────────
+//
 app.get('/nationaltrends', async (req, res) => {
-  console.log('GET request for national trends');
-  let trends = await db.getNationalTrends();
+  const trends = await db.getNationalTrends();
   res.send(trends);
 });
 
 app.get('/keywords', async (req, res) => {
-  console.log('GET request for state keywords');
-  let keywords = await db.getStateKeywords();
+  const keywords = await db.getStateKeywords();
   res.send(keywords);
 });
 
 app.post('/statepercentages', async (req, res) => {
-  console.log('POST request for state percentages for', req.body.word);
-  let percents = await db.getStatePercentages(req.body);
+  const percents = await db.getStatePercentages(req.body);
   res.send(percents);
+});
+
+app.post('/countrypercentages', async (req, res) => {
+  const percents = await db.getCountryPercentages(req.body);
+  res.send(percents);
+});
+
+app.post('/statesentiments', (req, res) => {
+  db.getStateSentiments(req.body)
+    .then(sentiments => {
+      console.log('SENTIMENT DATA', sentiments);
+      res.send(sentiments);
+    })
+    .catch(console.log);
+});
+
+app.post('/postterm', (req, res) => {
+  console.log(req.sessionID);
+  User.historyAdd(req.sessionID, req.body.term).then(res.send('done')).catch(console.error);
 })
 
-app.listen(process.env.PORT || 3000, function() {
+app.listen(process.env.PORT || 3000, () => {
   console.log(`Listening on port ${process.env.PORT || 3000}!`);
 });
+
