@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
+import Bubblemap from './bubblemap.jsx';
 import { country_codes } from './country-codes.js';
 
 export default class Map extends React.Component {
@@ -15,11 +16,13 @@ export default class Map extends React.Component {
 			textbox: '',
 			searched: '',
 			scope: "usa",
+			isBubbles: false,
 		}
 		this.handleDropdown = this.handleDropdown.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
 		this.handleTextboxChange = this.handleTextboxChange.bind(this);
+		this.toggleBubble = this.toggleBubble.bind(this);
 	}
 	componentWillMount() {
 		this.getNationalTrends();
@@ -251,6 +254,19 @@ export default class Map extends React.Component {
 		return input.replace(new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)', 'ig'), '$1<u>$2</u>$3');
 	}
 
+	toggleBubble(event) {
+		if (event.target.value === "By City") {
+			this.setState({
+				isBubbles: true
+			});
+		} else if (event.target.value === "By State" || event.target.value === "By Country") {
+			this.setState({
+				isBubbles: false
+			});
+			this.postStatePercentages(this.state.searched);
+		}
+	}
+
 	useAmericanStates() {
 		this.setState({
 			states: {
@@ -279,9 +295,7 @@ export default class Map extends React.Component {
 			<div>
 				<div>
 					<form onSubmit={this.handleSubmit}>
-
 						<input type="text" placeholder='Search' autoFocus='autofocus' value={this.state.textbox} onChange={this.handleTextboxChange} />
-
 						<input type="submit" value="Populate Map" />
 						{sentimentAnalysisButton}
 					</form>
@@ -304,31 +318,47 @@ export default class Map extends React.Component {
 							<option value={trend.trend} key={i + 1}>{(i + 1) + '. ' + trend.trend}</option>
 						))}
 					</select>
+					<select defaultValue={this.state.selectValue} onChange={this.toggleBubble}>
+						<option>By {this.state.scope === "usa" ? ("State") : ("Country")}</option>
+						<option>By City</option>
+					</select>
 					<br></br>
 					<br></br>
 					<b>{this.state.searched}</b>
 				</div>
-				<div className='map'>
-					<Datamap
-						scope={this.state.scope}
-						height='100%'
-						width='100%'
-						position='absolute'
-						geographyConfig={{
-							highlightBorderColor: 'lightBlue',
-							highlightFillColor: 'yellow',
-							popupTemplate: (geography, data) => {
-								return `<div class='hoverinfo'><b><i>${data.fillKey}%</i><br>${geography.properties.name} Tweets</b> ${data.text.map((tweet, i) => {
-									let underlineTweet = this.makeUnderline(tweet, [this.state.searched, this.state.searched + 's', this.state.searched + 'es']);
-									return '<br><br>' + (i + 1) + '. ' + underlineTweet;
-								})}
-								</div>`
-							},
-							highlightBorderWidth: 3
-						}}
-						fills={this.state.colors}
-						data={this.state.states}
-						 />
+				<div className='map'> 
+				<Bubblemap height={this.state.isBubbles ? "100%": "0%"}
+					width={this.state.isBubbles ? "100%": "0%"}
+					scope={this.state.scope}
+					position='absolute'
+					geographyConfig={{
+						highlightBorderColor: 'lightBlue',
+						highlightFillColor: 'yellow',
+					}} 
+					searched={this.state.searched}
+					isBubbles={this.state.isBubbles}
+					/>
+				 <Datamap
+					scope={this.state.scope}
+					height={this.state.isBubbles ? "0%": "100%"}
+					width={this.state.isBubbles ? "0%": "100%"}
+					position='absolute'
+					geographyConfig={{
+						highlightBorderColor: 'lightBlue',
+						highlightFillColor: 'yellow',
+						popupTemplate: (geography, data) => {
+							return `<div class='hoverinfo'><b><i>${data.fillKey}%</i><br>${geography.properties.name} Tweets</b> ${data.text.map((tweet, i) => {
+								let underlineTweet = this.makeUnderline(tweet, [this.state.searched, this.state.searched + 's', this.state.searched + 'es']);
+								return '<br><br>' + (i + 1) + '. ' + underlineTweet;
+						})}
+							</div>`
+						},
+						highlightBorderWidth: 3
+					}}
+					fills={this.state.colors}
+					data={this.state.states}
+					isBubbles={this.state.isBubbles}
+				/>
 				</div>
 			</div>
 		)
