@@ -24,6 +24,11 @@ app.get('/nationaltrends', async (req, res) => {
   res.send(trends);
 });
 
+app.get('/globaltrends', async (req, res) => {
+  const trends = await db.getGlobalTrends();
+  res.send(trends);
+});
+
 app.get('/keywords', async (req, res) => {
   const keywords = await db.getStateKeywords();
   res.send(keywords);
