@@ -363,7 +363,7 @@ export default class Map extends React.Component {
         ''
       );
     return (
-      <div>
+      <div className="main">
         <div>
           <form onSubmit={this.handleSubmit}>
             <input

@@ -92,25 +92,22 @@ class App extends React.Component {
     return (
       <MuiThemeProvider theme={theme}>
         <div className='App'>
-          <Search />
-          <span className={this.state.view === 'map'
-            ? 'nav-selected'
-            : 'nav-unselected'}
-            onClick={() => this.changeView('map')}>
-            Map
-        </span>
-          <span className={this.state.view === 'tables'
-            ? 'nav-selected'
-            : 'nav-unselected'}
-            onClick={() => this.changeView('tables')}>
-            Tables
-          </span>
-          <span className={this.state.view === 'account'
-            ? 'nav-selected'
-            : 'nav-unselected'}
-            onClick={() => this.changeView('account')}>
-            Account 
-          </span>
+          {/* <Search /> */}
+          <div className="main-header">
+            <div className="logo">TweetMap</div>
+            <div className={this.state.view === 'map'
+              ? 'nav-selected navbar waves-effect waves-light btn'
+              : 'nav-unselected navbar waves-effect waves-light btn'}
+              onClick={() => this.changeView('map')}>
+              Map
+          </div>
+            <div className={this.state.view === 'account'
+              ? 'nav-selected navbar waves-effect waves-light btn'
+              : 'nav-unselected navbar waves-effect waves-light btn'}
+              onClick={() => this.changeView('account')}>
+              Account 
+            </div>
+          </div>
           <br />
           <br />
           {this.views[this.state.view]()} 
