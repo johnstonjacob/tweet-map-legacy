@@ -275,13 +275,15 @@ export default class Map extends React.Component {
 					MT: {}, NC: {}, NE: {}, NV: {}, NH: {}, NJ: {}, NY: {}, ND: {}, NM: {}, OH: {},
 					OK: {}, OR: {}, PA: {}, RI: {}, SC: {}, SD: {}, TN: {}, TX: {}, UT: {}, WI: {},
 					VA: {}, VT: {}, WA: {}, WV: {}, WY: {}, CA: {}, CT: {}, AK: {}, AR: {}, AL: {} 
-			}
+			},
+			selectValue: 'Top National Trends',
 		});
 	}
 
 	useCountries() {
 		this.setState({
 			states: country_codes,
+			selectValue: 'Top Global Trends',
 		})
 	}
 	//
@@ -312,13 +314,20 @@ export default class Map extends React.Component {
 							World </span>
 							<br></br>
 					<br></br>
-					<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
+					{this.state.scope === "usa"
+					?(<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
 						<option defaultValue hidden>Top National Trends</option>
 						{this.state.nationalTrends.map((trend, i) => (
 							<option value={trend.trend} key={i + 1}>{(i + 1) + '. ' + trend.trend}</option>
 						))}
-					</select>
-					<select defaultValue={this.state.selectValue} onChange={this.toggleBubble}>
+					</select>)
+					:(<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
+						<option defaultValue hidden>Top Global Trends</option>
+						{this.state.nationalTrends.map((trend, i) => (
+							<option value={trend.trend} key={i + 1}>{(i + 1) + '. ' + trend.trend}</option>
+						))}
+					</select>)}
+					<select defaultValue="By State" onChange={this.toggleBubble}>
 						<option>By {this.state.scope === "usa" ? ("State") : ("Country")}</option>
 						<option>By City</option>
 					</select>
