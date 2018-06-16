@@ -71,12 +71,12 @@ export default class Datamap extends React.Component {
 		if (!map) {
 			map = this.map = new Datamaps({
 				scope: this.props.scope,
-				labels: this.props.labels,
 				fills: this.props.fills,
 				element: this.refs.container,
 			 	geographyConfig: this.props.geographyConfig,
 				data,
-			});
+			})
+			map.labels({fontSize: 10});
 		} else {
 				map.options.fills = this.props.fills;
         map.updateChoropleth(data, updateChoroplethOptions);
@@ -92,10 +92,6 @@ export default class Datamap extends React.Component {
 
 			if (graticule) {
 			  map.graticule();
-			}
-
-			if (labels) {
-			  map.labels();
 			}
 	}
 	

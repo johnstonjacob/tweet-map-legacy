@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
+import { country_codes } from './country-codes.js';
+
 export default class Map extends React.Component {
 	constructor() {
 		super();
@@ -29,19 +31,10 @@ export default class Map extends React.Component {
 			scope: scope
 		});
 		if (scope === "world") {
-			this.setState({
-				states: [],
-			})
+			this.useCountries();
 		} else {
 			this.useAmericanStates();
 		}
-		this.handleDropdown = this.handleDropdown.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
-		this.handleTextboxChange = this.handleTextboxChange.bind(this);
-	}
-	componentWillMount() {
-		this.getNationalTrends();
 	}
 
 
@@ -73,6 +66,16 @@ export default class Map extends React.Component {
 		}
 	}
 
+	postCountryPercentages(searchTerm) {
+		console.log('Keyword:', searchTerm)
+		if (searchTerm !== '') {
+			axios.post('/countrypercentages', { word: searchTerm })
+				.then((response) => {
+					this.setPercentages(response.data);
+				})
+		}
+	}
+
 	postStateSentiments(searchTerm) {
 		console.log('Keyword:', searchTerm)
 		if (searchTerm !== '') {
@@ -94,7 +97,6 @@ export default class Map extends React.Component {
 			statesCopy[state].fillKey = 0;
 			statesCopy[state].text = [];
 		}
-
 		//Populate percentages
 		for (let state in statesCopy) {
 			if (data[state]) {
@@ -175,7 +177,7 @@ export default class Map extends React.Component {
 		mean = sumPercentage / count;
 		//Create color gradient based on lowest and highest percentages found
 		if (lowest < highest) {
-			colors = d3.scale.linear().domain([lowest, mean, highest]).range(['#fff0f0', '#ff4d4d', '#990000']);
+			colors = d3.scale.linear().domain([lowest, mean, highest]).range(['#e6f2ff', '#80bfff', '#004d99']);
 		} else {
 			colors = d3.scale.linear().domain([lowest, highest]).range(['#ABDDA4', '#ABDDA4']);
 		}
@@ -206,7 +208,9 @@ export default class Map extends React.Component {
 	// ─── HANDLE UI ELEMENTS ─────────────────────────────────────────────────────────
 	//
 	handleDropdown(event) {
-		this.postStatePercentages(event.target.value);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(event.target.value)
+			: this.postCountryPercentages(event.target.value)
 		this.setState({
 			textbox: '',
 			searched: event.target.value
@@ -221,7 +225,9 @@ export default class Map extends React.Component {
 	}
 
 	handleSubmit(event) {
-		this.postStatePercentages(this.state.textbox);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(this.state.textbox)
+			: this.postCountryPercentages(this.state.textbox)
 		this.setState({
 			textbox: '',
 			searched: this.state.textbox
@@ -230,10 +236,13 @@ export default class Map extends React.Component {
 	}
 
 	handleSentimentSubmit(event) {
-		this.postStateSentiments(this.state.textbox);
+		let searchTerm = this.state.textbox.length 
+			? this.state.textbox
+			: this.state.searched
+		this.postStateSentiments(searchTerm);
 		this.setState({
 			textbox: '',
-			searched: this.state.textbox
+			searched: searchTerm
 		});
 		event.preventDefault();
 	}
@@ -253,10 +262,19 @@ export default class Map extends React.Component {
 			}
 		});
 	}
+
+	useCountries() {
+		this.setState({
+			states: country_codes,
+		})
+	}
 	//
 	// ─── RENDER ─────────────────────────────────────────────────────────────────────
 	//
 	render() {
+		let sentimentAnalysisButton = this.state.scope === "usa" 
+			? <button onClick={this.handleSentimentSubmit}>Sentiment Analaysis</button>
+			: ('')
 		return (
 			<div>
 				<div>
@@ -265,7 +283,7 @@ export default class Map extends React.Component {
 						<input type="text" placeholder='Search' autoFocus='autofocus' value={this.state.textbox} onChange={this.handleTextboxChange} />
 
 						<input type="submit" value="Populate Map" />
-						<button onClick={this.handleSentimentSubmit}></button>
+						{sentimentAnalysisButton}
 					</form>
 					<br></br>
 					<span className={this.state.scope === "usa"
@@ -310,7 +328,7 @@ export default class Map extends React.Component {
 						}}
 						fills={this.state.colors}
 						data={this.state.states}
-						labels />
+						 />
 				</div>
 			</div>
 		)

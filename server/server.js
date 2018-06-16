@@ -14,7 +14,8 @@ app.use(express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-cronJob.start();
+//cronJob.start();
+//cronJob.stop();
 
 
 //
@@ -32,7 +33,11 @@ app.get('/keywords', async (req, res) => {
 
 app.post('/statepercentages', async (req, res) => {
   const percents = await db.getStatePercentages(req.body);
-  console.log('PERCENT DATA', percents);
+  res.send(percents);
+});
+
+app.post('/countrypercentages', async (req, res) => {
+  const percents = await db.getCountryPercentages(req.body);
   res.send(percents);
 });
 
