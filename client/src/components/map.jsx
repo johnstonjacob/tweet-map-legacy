@@ -4,6 +4,7 @@ import axios from 'axios';
 import Datamap from './datamap.jsx';
 import Bubblemap from './bubblemap.jsx';
 import { country_codes } from './country-codes.js';
+import ReactLoading from 'react-loading';
 
 export default class Map extends React.Component {
   constructor() {
@@ -17,6 +18,7 @@ export default class Map extends React.Component {
       searched: '',
       scope: 'usa',
       isBubbles: false,
+      fetchInProgress: false
     };
     this.handleDropdown = this.handleDropdown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -61,8 +63,10 @@ export default class Map extends React.Component {
   //
   postStatePercentages(searchTerm) {
     console.log('Keyword:', searchTerm);
+    this.state.fetchInProgress = true;
     if (searchTerm !== '') {
       axios.post('/statepercentages', { word: searchTerm }).then((response) => {
+        this.state.fetchInProgress = false;
         this.setPercentages(response.data);
       });
     }
@@ -70,8 +74,10 @@ export default class Map extends React.Component {
 
   postCountryPercentages(searchTerm) {
     console.log('Keyword:', searchTerm);
+    this.state.fetchInProgress = true;
     if (searchTerm !== '') {
       axios.post('/countrypercentages', { word: searchTerm }).then((response) => {
+        this.state.fetchInProgress = false;
         this.setPercentages(response.data);
       });
     }
@@ -80,7 +86,9 @@ export default class Map extends React.Component {
   postStateSentiments(searchTerm) {
     console.log('Keyword:', searchTerm);
     if (searchTerm !== '') {
+      this.state.fetchInProgress = true;
       axios.post('/statesentiments', { word: searchTerm }).then((response) => {
+        this.state.fetchInProgress = false;
         this.setSentiments(response.data);
       });
     }
@@ -401,6 +409,7 @@ export default class Map extends React.Component {
           <br />
           <b>{this.state.searched}</b>
         </div>
+        {this.state.fetchInProgress ? <ReactLoading type="bubbles" width="300px" className="center" color="#4e4e4e"/> :
         <div className="map">
           <Bubblemap
             height={this.state.isBubbles ? '100%' : '0%'}
@@ -442,6 +451,7 @@ export default class Map extends React.Component {
             isBubbles={this.state.isBubbles}
           />
         </div>
+          }
       </div>
     );
   }
