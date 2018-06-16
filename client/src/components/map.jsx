@@ -6,18 +6,34 @@ export default class Map extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			states: {
-				AZ: {}, CO: {}, DE: {}, FL: {}, GA: {}, HI: {}, ID: {}, IL: {}, IN: {}, IA: {},
-				KS: {}, KY: {}, LA: {}, MD: {}, ME: {}, MA: {}, MN: {}, MI: {}, MS: {}, MO: {},
-				MT: {}, NC: {}, NE: {}, NV: {}, NH: {}, NJ: {}, NY: {}, ND: {}, NM: {}, OH: {},
-				OK: {}, OR: {}, PA: {}, RI: {}, SC: {}, SD: {}, TN: {}, TX: {}, UT: {}, WI: {},
-				VA: {}, VT: {}, WA: {}, WV: {}, WY: {}, CA: {}, CT: {}, AK: {}, AR: {}, AL: {}
-			},
+			states: [],
 			nationalTrends: [],
 			selectValue: 'Top National Trends',
 			colors: {},
 			textbox: '',
-			searched: ''
+			searched: '',
+			scope: "usa",
+		}
+		this.handleDropdown = this.handleDropdown.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
+		this.handleTextboxChange = this.handleTextboxChange.bind(this);
+	}
+	componentWillMount() {
+		this.getNationalTrends();
+		this.useAmericanStates();
+	}
+
+	changeScope(scope) {
+		this.setState({
+			scope: scope
+		});
+		if (scope === "world") {
+			this.setState({
+				states: [],
+			})
+		} else {
+			this.useAmericanStates();
 		}
 		this.handleDropdown = this.handleDropdown.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -94,6 +110,28 @@ export default class Map extends React.Component {
 	}
 
 	setSentiments(data) {
+		let statesCopy = Object.assign({}, this.state.states);
+		//Clear percentages
+		for (let state in statesCopy) {
+			statesCopy[state].fillKey = 0;
+			statesCopy[state].text = [];
+		}
+
+		//Populate percentages
+		for (let state in statesCopy) {
+			if (data[state]) {
+				console.log(data[state].fillKey);
+				statesCopy[state].fillKey = data[state].fillKey;
+			}
+		}
+		this.setState({
+			states: statesCopy,
+		});
+		this.setSentimentFills();
+		setTimeout(() => console.log(this.state.states), 1000);
+	}
+
+	setTrends(data) {
 		let statesCopy = Object.assign({}, this.state.states);
 		//Clear percentages
 		for (let state in statesCopy) {
@@ -204,7 +242,17 @@ export default class Map extends React.Component {
 		return input.replace(new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)', 'ig'), '$1<u>$2</u>$3');
 	}
 
-
+	useAmericanStates() {
+		this.setState({
+			states: {
+					AZ: {}, CO: {}, DE: {}, FL: {}, GA: {}, HI: {}, ID: {}, IL: {}, IN: {}, IA: {}, 
+					KS: {}, KY: {}, LA: {}, MD: {}, ME: {}, MA: {}, MN: {}, MI: {}, MS: {}, MO: {},
+					MT: {}, NC: {}, NE: {}, NV: {}, NH: {}, NJ: {}, NY: {}, ND: {}, NM: {}, OH: {},
+					OK: {}, OR: {}, PA: {}, RI: {}, SC: {}, SD: {}, TN: {}, TX: {}, UT: {}, WI: {},
+					VA: {}, VT: {}, WA: {}, WV: {}, WY: {}, CA: {}, CT: {}, AK: {}, AR: {}, AL: {} 
+			}
+		});
+	}
 	//
 	// ─── RENDER ─────────────────────────────────────────────────────────────────────
 	//
@@ -220,6 +268,18 @@ export default class Map extends React.Component {
 						<button onClick={this.handleSentimentSubmit}></button>
 					</form>
 					<br></br>
+					<span className={this.state.scope === "usa"
+					? 'nav-selected'
+					: 'nav-unselected'}
+					onClick={() => this.changeScope("usa")}>
+							USA </span>
+							<span className={this.state.scope === "world"
+					? 'nav-selected'
+					: 'nav-unselected'}
+					onClick={() => this.changeScope("world")}>
+							World </span>
+							<br></br>
+					<br></br>
 					<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
 						<option defaultValue hidden>Top National Trends</option>
 						{this.state.nationalTrends.map((trend, i) => (
@@ -232,7 +292,7 @@ export default class Map extends React.Component {
 				</div>
 				<div className='map'>
 					<Datamap
-						scope="usa"
+						scope={this.state.scope}
 						height='100%'
 						width='100%'
 						position='absolute'
