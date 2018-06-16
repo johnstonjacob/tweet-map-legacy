@@ -6,6 +6,7 @@ const _ = require('underscore');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const getSentimentFromTweets = require('./sentiment');
+const country_conversion = require('../client/src/components/country-codes').country_conversion;
 
 
 mongoose.Promise = global.Promise;
@@ -51,13 +52,11 @@ const Tweet = mongoose.model(
     country: String,
     text: String,
     username: String,
-    link: String,
     createdAt: Date,
     latitude: Number,
     longitude: Number,
   }), 'Tweets',
 );
-
 
 //
 // ─── SAVE TO DB ─────────────────────────────────────────────────────────────────
@@ -126,7 +125,7 @@ const getStatePercentages = async (keyword) => {
       },
     },
   ]);
-
+  
   const percentsObj = {};
   for (const val of percents) {
     percentsObj[val.state] = {
@@ -134,12 +133,62 @@ const getStatePercentages = async (keyword) => {
       text: val.text.slice(0, 5),
     };
   }
+  
+  return percentsObj;
+};
 
+const getCountryPercentages = async (keyword) => {
+  const percents = await Tweet.aggregate([
+    {
+      $group: {
+        _id: '$country',
+        country: { $first: '$country' },
+        totalCount: { $sum: 1 },
+        text: { $push: '$text' },
+      },
+    },
+    {
+      $unwind: '$text',
+    },
+    {
+      $match: {
+        text: { $regex: keyword.word, $options: 'i' },
+      },
+    },
+    {
+      $group: {
+        _id: '$country',
+        state: { $first: '$country' },
+        totalCount: { $first: '$totalCount' },
+        matchCount: { $sum: 1 },
+        text: { $push: '$text' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        state: 1,
+        text: 1,
+        percent: {
+          $multiply: [{ $divide: ['$matchCount', '$totalCount'] }, 100],
+        },
+      },
+    },
+  ]);
+
+  const percentsObj = {};
+  for (const val of percents) {
+    let countryCode = country_conversion[val.state];
+    percentsObj[countryCode] = {
+      fillKey: Math.round(val.percent * 100) / 100,
+      text: val.text.slice(0, 5),
+    };
+  }
   return percentsObj;
 };
 
 const getStateSentiments = async (keyword) => {
-  const stateTweets = await stateTweet.aggregate([
+  const stateTweets = await Tweet.aggregate([
     {
       $group: {
         _id: '$state',
@@ -203,5 +252,6 @@ module.exports = {
   getNationalTrends,
   getStateKeywords,
   getStatePercentages,
+  getCountryPercentages,
   getStateSentiments,
 };

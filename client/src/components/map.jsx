@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
+import { country_codes } from './country-codes.js';
+
 export default class Map extends React.Component {
 	constructor() {
 		super();
@@ -29,19 +31,10 @@ export default class Map extends React.Component {
 			scope: scope
 		});
 		if (scope === "world") {
-			this.setState({
-				states: [],
-			})
+			this.useCountries();
 		} else {
 			this.useAmericanStates();
 		}
-		this.handleDropdown = this.handleDropdown.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
-		this.handleTextboxChange = this.handleTextboxChange.bind(this);
-	}
-	componentWillMount() {
-		this.getNationalTrends();
 	}
 
 
@@ -73,6 +66,16 @@ export default class Map extends React.Component {
 		}
 	}
 
+	postCountryPercentages(searchTerm) {
+		console.log('Keyword:', searchTerm)
+		if (searchTerm !== '') {
+			axios.post('/countrypercentages', { word: searchTerm })
+				.then((response) => {
+					this.setPercentages(response.data);
+				})
+		}
+	}
+
 	postStateSentiments(searchTerm) {
 		console.log('Keyword:', searchTerm)
 		if (searchTerm !== '') {
@@ -94,7 +97,6 @@ export default class Map extends React.Component {
 			statesCopy[state].fillKey = 0;
 			statesCopy[state].text = [];
 		}
-
 		//Populate percentages
 		for (let state in statesCopy) {
 			if (data[state]) {
@@ -206,7 +208,9 @@ export default class Map extends React.Component {
 	// ─── HANDLE UI ELEMENTS ─────────────────────────────────────────────────────────
 	//
 	handleDropdown(event) {
-		this.postStatePercentages(event.target.value);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(event.target.value)
+			: this.postCountryPercentages(event.target.value)
 		this.setState({
 			textbox: '',
 			searched: event.target.value
@@ -221,7 +225,9 @@ export default class Map extends React.Component {
 	}
 
 	handleSubmit(event) {
-		this.postStatePercentages(this.state.textbox);
+		this.state.scope === "usa" 
+			? this.postStatePercentages(this.state.textbox)
+			: this.postCountryPercentages(this.state.textbox)
 		this.setState({
 			textbox: '',
 			searched: this.state.textbox
@@ -252,6 +258,12 @@ export default class Map extends React.Component {
 					VA: {}, VT: {}, WA: {}, WV: {}, WY: {}, CA: {}, CT: {}, AK: {}, AR: {}, AL: {} 
 			}
 		});
+	}
+
+	useCountries() {
+		this.setState({
+			states: country_codes,
+		})
 	}
 	//
 	// ─── RENDER ─────────────────────────────────────────────────────────────────────
