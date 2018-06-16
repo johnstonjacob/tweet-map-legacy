@@ -64,7 +64,7 @@ class App extends React.Component {
     };
 
     this.views = {
-      map: () => <Map />,
+      map: () => <Map loggedIn={this.state.loggedIn}/>,
       tables: () => <Tables />,
       account: () => <Account loggedIn={this.state.loggedIn} history={this.state.history} />,
     };
@@ -75,6 +75,7 @@ class App extends React.Component {
       view: option
     });
   }
+  
 
   componentDidMount() {
     const options = {

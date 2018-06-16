@@ -47,4 +47,16 @@ User.sessionCheck = function(session) {
   });
 };
 
+User.historyAdd = function(session, term){
+  return new Promise((res, rej) => {
+    User.findOne({session}, (err, user) => {
+      if(err || !user) rej(err);
+      console.log(user);
+      user.history.unshift(term);
+      user.save(err => console.error(err))
+      res('done');
+    })
+  })
+}
+
 module.exports = User;

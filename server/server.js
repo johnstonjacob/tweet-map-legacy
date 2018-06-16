@@ -5,6 +5,7 @@ const db = require('../database/database');
 const {cronJob} = require('../database/tweetsStream');
 const app = (module.exports = express());
 const auth = require('./auth');
+const User = require('../database/user');
 
 //
 // ─── MIDDLEWARE ─────────────────────────────────────────────────────────────────
@@ -46,6 +47,11 @@ app.post('/statesentiments', (req, res) => {
     })
     .catch(console.log);
 });
+
+app.post('/postterm', (req, res) => {
+  console.log(req.sessionID);
+  User.historyAdd(req.sessionID, req.body.term).then(res.send('done')).catch(console.error);
+})
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Listening on port ${process.env.PORT || 3000}!`);

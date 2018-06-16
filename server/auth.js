@@ -3,7 +3,6 @@ const passport = require('passport');
 const TwitterStrategy = require('passport-twitter');
 const User = require('../database/user.js');
 const app = require('./server');
-
 app.use(
   require('express-session')({
     secret: 'han shot first',
@@ -60,3 +59,4 @@ app.get(
     res.redirect('/');
   },
 );
+
