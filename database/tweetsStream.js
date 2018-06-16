@@ -71,8 +71,7 @@ let count = 0;
 //
 // ─── CRONJOB ────────────────────────────────────────────────────────────────────
 //
-const cronJob = new CronJob(
-  '*/15 * * * *', () => {
+const startStream = () => {
     console.log('Starting new stream via CronJob.');
 
     // Stop the previous stream
@@ -82,7 +81,7 @@ const cronJob = new CronJob(
     }
 
     // Create a new stream
-    stream = twit.stream('statuses/sample');
+    stream = twit.stream('statuses/filter', {locations: US});
 
     // Start the new stream
     stream.on('tweet', (tweet) => {
@@ -126,9 +125,9 @@ const cronJob = new CronJob(
         });
       }
     });
-  },
-  null, true, 'America/Los_Angeles',
-);
+  };
+//   null, true, 'America/Los_Angeles',
+// );
 // // ────────────────────────────────────────────────────────────────────────────────
 
 // cronJob.start();
@@ -138,4 +137,4 @@ const cronJob = new CronJob(
 
 // }, 30 * 60 * 1000);
 
-module.exports = { cronJob };
+module.exports = { startStream };
