@@ -10,7 +10,8 @@ export default class Map extends React.Component {
     super();
     this.state = {
       states: [],
-      nationalTrends: [],
+	  nationalTrends: [],
+	  globalTrends: [],
       selectValue: 'Top National Trends',
       colors: {},
       textbox: '',
@@ -25,7 +26,8 @@ export default class Map extends React.Component {
     this.toggleBubble = this.toggleBubble.bind(this);
   }
   componentWillMount() {
-    this.getNationalTrends();
+	this.getNationalTrends();
+	this.getGlobalTrends();
     this.useAmericanStates();
   }
 
@@ -49,6 +51,19 @@ export default class Map extends React.Component {
       .then((response) => {
         this.setState({
           nationalTrends: response.data,
+        });
+      })
+      .catch((err) => {
+        return console.error(err);
+      });
+  }
+
+  getGlobalTrends() {
+    axios
+      .get('/globaltrends')
+      .then((response) => {
+        this.setState({
+          globalTrends: response.data,
         });
       })
       .catch((err) => {
@@ -435,7 +450,7 @@ export default class Map extends React.Component {
 					</select>)
 					:(<select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
 						<option defaultValue hidden>Top Global Trends</option>
-						{this.state.nationalTrends.map((trend, i) => (
+						{this.state.globalTrends.map((trend, i) => (
 							<option value={trend.trend} key={i + 1}>{(i + 1) + '. ' + trend.trend}</option>
 						))}
 					</select>)}

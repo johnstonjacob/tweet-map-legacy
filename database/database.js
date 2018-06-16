@@ -95,6 +95,8 @@ const getBubbles = (query, callback) => {
 
 const getNationalTrends = () => nationalTrend.find({ rank: { $lte: 15 } }).select('trend');
 
+const getGlobalTrends = () => globalTrend.find({ rank: { $lte: 15 } }).select('trend');
+
 const getStateKeywords = () => {
   stateKeyword.find({});
 };
@@ -268,6 +270,7 @@ module.exports = {
   saveGlobalTrend,
   getBubbles,
   getNationalTrends,
+  getGlobalTrends,
   getStateKeywords,
   getStatePercentages,
   getCountryPercentages,

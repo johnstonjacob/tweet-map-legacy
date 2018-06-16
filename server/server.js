@@ -2,17 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const db = require('../database/database');
-<<<<<<< HEAD
-const { startStream } = require('../database/tweetsStream');
-
-const app = express();
-
-=======
 const {cronJob} = require('../database/tweetsStream');
 const app = (module.exports = express());
 const auth = require('./auth');
 const User = require('../database/user');
->>>>>>> 322a83d512faf969506bb9cee3a4dde4992a81ec
 
 //
 // ─── MIDDLEWARE ─────────────────────────────────────────────────────────────────
@@ -28,6 +21,11 @@ app.use(morgan('dev'));
 //
 app.get('/nationaltrends', async (req, res) => {
   const trends = await db.getNationalTrends();
+  res.send(trends);
+});
+
+app.get('/globaltrends', async (req, res) => {
+  const trends = await db.getGlobalTrends();
   res.send(trends);
 });
 
