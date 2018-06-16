@@ -71,8 +71,8 @@ let count = 0;
 //
 // ─── CRONJOB ────────────────────────────────────────────────────────────────────
 //
-const cronJob = new CronJob(
-  '*/15 * * * *', () => {
+// const cronJob = new CronJob(
+  const startStream = () => {
     console.log('Starting new stream via CronJob.');
 
     // Stop the previous stream
@@ -126,10 +126,22 @@ const cronJob = new CronJob(
         });
       }
     });
-  },
-  null, true, 'America/Los_Angeles',
-);
-// ────────────────────────────────────────────────────────────────────────────────
+    setTimeout(() => {
+      stream.stop();
+    
+    }, 7 * 60 * 60 * 1000);    
+  };
+//   null, true, 'America/Los_Angeles',
+// );
+// // ────────────────────────────────────────────────────────────────────────────────
+
+// cronJob.start();
+
+setTimeout(() => {
+  stream.stop();
+
+}, 7 * 60 * 60 * 1000);
 
 
-module.exports = { cronJob };
+
+module.exports = { startStream };

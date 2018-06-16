@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const db = require('../database/database');
-const { cronJob } = require('../database/tweetsStream');
+const { startStream } = require('../database/tweetsStream');
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-//cronJob.start();
+startStream();
 //cronJob.stop();
 
 
