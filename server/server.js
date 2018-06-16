@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const db = require('../database/database');
-const { startStream } = require('../database/tweetsStream');
+const { cronJob } = require('../database/tweetsStream');
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-startStream();
+//cronJob.start();
 //cronJob.stop();
 
 
@@ -29,6 +29,17 @@ app.get('/nationaltrends', async (req, res) => {
 app.get('/keywords', async (req, res) => {
   const keywords = await db.getStateKeywords();
   res.send(keywords);
+});
+
+app.get('/bubbles/:query', (req, res) => {
+  const { query } = req.params;
+  db.getBubbles(query, (err, data) => {
+    if (err) {
+      res.status(404).end();
+    } else {
+      res.send(data);
+    }
+  });
 });
 
 app.post('/statepercentages', async (req, res) => {
