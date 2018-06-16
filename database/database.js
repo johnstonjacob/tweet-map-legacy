@@ -55,6 +55,7 @@ const Tweet = mongoose.model(
     createdAt: Date,
     latitude: Number,
     longitude: Number,
+    radius: Number
   }), 'Tweets',
 );
 
@@ -81,6 +82,17 @@ const saveGlobalTrend = (data) => {
 //
 // ─── MANIPULATE DATA ────────────────────────────────────────────────────────────
 //
+
+const getBubbles = (query, callback) => {
+  Tweet.find({text: { $regex: query, $options: "i" }}, (err, data) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, data);
+    }
+  });
+}
+
 const getNationalTrends = () => nationalTrend.find({ rank: { $lte: 15 } }).select('trend');
 
 const getStateKeywords = () => {
@@ -123,8 +135,8 @@ const getStatePercentages = async (keyword) => {
           $multiply: [{ $divide: ['$matchCount', '$totalCount'] }, 100],
         },
       },
-    },
-  ]);
+    }, 
+  ]).allowDiskUse(true);
   
   const percentsObj = {};
   for (const val of percents) {
@@ -174,7 +186,7 @@ const getCountryPercentages = async (keyword) => {
         },
       },
     },
-  ]);
+  ]).allowDiskUse(true);
 
   const percentsObj = {};
   for (const val of percents) {
@@ -189,6 +201,11 @@ const getCountryPercentages = async (keyword) => {
 
 const getStateSentiments = async (keyword) => {
   const stateTweets = await Tweet.aggregate([
+    {
+      $match: {
+        country: 'US',
+      },
+    },
     {
       $group: {
         _id: '$state',
@@ -249,6 +266,7 @@ module.exports = {
   saveStateTweet,
   saveNationalTrend,
   saveGlobalTrend,
+  getBubbles,
   getNationalTrends,
   getStateKeywords,
   getStatePercentages,

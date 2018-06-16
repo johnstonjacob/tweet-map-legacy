@@ -56,13 +56,7 @@ export default class Datamap extends React.Component {
 
   drawMap() {
 		const {
-			arc,
-			arcOptions,
-			bubbles,
-			bubbleOptions,
 			data,
-			graticule,
-			labels,
 			updateChoroplethOptions,
 		} = this.props;
 
@@ -71,32 +65,16 @@ export default class Datamap extends React.Component {
 		if (!map) {
 			map = this.map = new Datamaps({
 				scope: this.props.scope,
-				labels: this.props.labels,
 				fills: this.props.fills,
 				element: this.refs.container,
 			 	geographyConfig: this.props.geographyConfig,
 				data,
-			});
+			})
+			map.labels({fontSize: 10});
 		} else {
 				map.options.fills = this.props.fills;
         map.updateChoropleth(data, updateChoroplethOptions);
-			}
-      //map.legend();
-			if (arc) {
-				map.arc(arc, arcOptions);
-			}
-
-			if (bubbles) {
-		  
-			}
-
-			if (graticule) {
-			  map.graticule();
-			}
-
-			if (labels) {
-			  map.labels();
-			}
+		}
 	}
 	
 	resizeMap() {

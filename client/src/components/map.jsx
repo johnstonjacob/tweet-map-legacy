@@ -2,7 +2,8 @@ import React from 'react';
 import axios from 'axios';
 
 import Datamap from './datamap.jsx';
-import {country_codes} from './country-codes.js';
+import Bubblemap from './bubblemap.jsx';
+import { country_codes } from './country-codes.js';
 
 export default class Map extends React.Component {
   constructor() {
@@ -15,11 +16,13 @@ export default class Map extends React.Component {
       textbox: '',
       searched: '',
       scope: 'usa',
+      isBubbles: false,
     };
     this.handleDropdown = this.handleDropdown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleSentimentSubmit = this.handleSentimentSubmit.bind(this);
     this.handleTextboxChange = this.handleTextboxChange.bind(this);
+    this.toggleBubble = this.toggleBubble.bind(this);
   }
   componentWillMount() {
     this.getNationalTrends();
@@ -43,12 +46,12 @@ export default class Map extends React.Component {
   getNationalTrends() {
     axios
       .get('/nationaltrends')
-      .then(response => {
+      .then((response) => {
         this.setState({
           nationalTrends: response.data,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         return console.error(err);
       });
   }
@@ -59,7 +62,7 @@ export default class Map extends React.Component {
   postStatePercentages(searchTerm) {
     console.log('Keyword:', searchTerm);
     if (searchTerm !== '') {
-      axios.post('/statepercentages', {word: searchTerm}).then(response => {
+      axios.post('/statepercentages', { word: searchTerm }).then((response) => {
         this.setPercentages(response.data);
       });
     }
@@ -68,7 +71,7 @@ export default class Map extends React.Component {
   postCountryPercentages(searchTerm) {
     console.log('Keyword:', searchTerm);
     if (searchTerm !== '') {
-      axios.post('/countrypercentages', {word: searchTerm}).then(response => {
+      axios.post('/countrypercentages', { word: searchTerm }).then((response) => {
         this.setPercentages(response.data);
       });
     }
@@ -77,7 +80,7 @@ export default class Map extends React.Component {
   postStateSentiments(searchTerm) {
     console.log('Keyword:', searchTerm);
     if (searchTerm !== '') {
-      axios.post('/statesentiments', {word: searchTerm}).then(response => {
+      axios.post('/statesentiments', { word: searchTerm }).then((response) => {
         this.setSentiments(response.data);
       });
     }
@@ -156,7 +159,7 @@ export default class Map extends React.Component {
     for (let state in statesCopy) {
       statesCopy[state].trends = data[state].trends;
     }
-    this.setState({states: statesCopy});
+    this.setState({ states: statesCopy });
   }
 
   setPercentageFills() {
@@ -185,7 +188,7 @@ export default class Map extends React.Component {
       colors = d3.scale
         .linear()
         .domain([lowest, mean, highest])
-        .range(['#fff0f0', '#ff4d4d', '#990000']);
+        .range(['#e6f2ff', '#80bfff', '#004d99']);
     } else {
       colors = d3.scale
         .linear()
@@ -193,9 +196,7 @@ export default class Map extends React.Component {
         .range(['#ABDDA4', '#ABDDA4']);
     }
     for (let state in this.state.states) {
-      colorObj[this.state.states[state].fillKey] = colors(
-        this.state.states[state].fillKey,
-      );
+      colorObj[this.state.states[state].fillKey] = colors(this.state.states[state].fillKey);
     }
     this.setState({
       colors: colorObj,
@@ -210,9 +211,7 @@ export default class Map extends React.Component {
       .domain([-1, 0, 1])
       .range(['#d10000', '#dbdbdb', '#00bc03']);
     for (let state in this.state.states) {
-      colorObj[this.state.states[state].fillKey] = colors(
-        this.state.states[state].fillKey,
-      );
+      colorObj[this.state.states[state].fillKey] = colors(this.state.states[state].fillKey);
     }
     console.log('COLOROBJ', colorObj);
     this.setState({
@@ -241,9 +240,8 @@ export default class Map extends React.Component {
   }
 
   handleSubmit(event) {
-
-    if (this.props.loggedIn) axios.post('/postterm', {term: this.state.textbox}).then(console.log);
-
+    if (this.props.loggedIn)
+      axios.post('/postterm', { term: this.state.textbox }).then(console.log);
     this.state.scope === 'usa'
       ? this.postStatePercentages(this.state.textbox)
       : this.postCountryPercentages(this.state.textbox);
@@ -255,10 +253,11 @@ export default class Map extends React.Component {
   }
 
   handleSentimentSubmit(event) {
-    this.postStateSentiments(this.state.textbox);
+    let searchTerm = this.state.textbox.length ? this.state.textbox : this.state.searched;
+    this.postStateSentiments(searchTerm);
     this.setState({
       textbox: '',
-      searched: this.state.textbox,
+      searched: searchTerm,
     });
     event.preventDefault();
   }
@@ -266,8 +265,21 @@ export default class Map extends React.Component {
   makeUnderline(input, wordsToUnderline) {
     return input.replace(
       new RegExp('(\\b)(' + wordsToUnderline.join('|') + ')(\\b)', 'ig'),
-      '$1<u>$2</u>$3',
+      '$1<u>$2</u>$3'
     );
+  }
+
+  toggleBubble(event) {
+    if (event.target.value === 'By City') {
+      this.setState({
+        isBubbles: true,
+      });
+    } else if (event.target.value === 'By State' || event.target.value === 'By Country') {
+      this.setState({
+        isBubbles: false,
+      });
+      this.postStatePercentages(this.state.searched);
+    }
   }
 
   useAmericanStates() {
@@ -336,6 +348,12 @@ export default class Map extends React.Component {
   // ─── RENDER ─────────────────────────────────────────────────────────────────────
   //
   render() {
+    let sentimentAnalysisButton =
+      this.state.scope === 'usa' ? (
+        <button onClick={this.handleSentimentSubmit}>Sentiment Analaysis</button>
+      ) : (
+        ''
+      );
     return (
       <div>
         <div>
@@ -347,30 +365,25 @@ export default class Map extends React.Component {
               value={this.state.textbox}
               onChange={this.handleTextboxChange}
             />
-
             <input type="submit" value="Populate Map" />
-            <button onClick={this.handleSentimentSubmit} />
+            {sentimentAnalysisButton}
           </form>
           <br />
           <span
-            className={
-              this.state.scope === 'usa' ? 'nav-selected' : 'nav-unselected'
-            }
-            onClick={() => this.changeScope('usa')}>
+            className={this.state.scope === 'usa' ? 'nav-selected' : 'nav-unselected'}
+            onClick={() => this.changeScope('usa')}
+          >
             USA{' '}
           </span>
           <span
-            className={
-              this.state.scope === 'world' ? 'nav-selected' : 'nav-unselected'
-            }
-            onClick={() => this.changeScope('world')}>
+            className={this.state.scope === 'world' ? 'nav-selected' : 'nav-unselected'}
+            onClick={() => this.changeScope('world')}
+          >
             World{' '}
           </span>
           <br />
           <br />
-          <select
-            defaultValue={this.state.selectValue}
-            onChange={this.handleDropdown}>
+          <select defaultValue={this.state.selectValue} onChange={this.handleDropdown}>
             <option defaultValue hidden>
               Top National Trends
             </option>
@@ -380,15 +393,31 @@ export default class Map extends React.Component {
               </option>
             ))}
           </select>
+          <select defaultValue={this.state.selectValue} onChange={this.toggleBubble}>
+            <option>By {this.state.scope === 'usa' ? 'State' : 'Country'}</option>
+            <option>By City</option>
+          </select>
           <br />
           <br />
           <b>{this.state.searched}</b>
         </div>
         <div className="map">
+          <Bubblemap
+            height={this.state.isBubbles ? '100%' : '0%'}
+            width={this.state.isBubbles ? '100%' : '0%'}
+            scope={this.state.scope}
+            position="absolute"
+            geographyConfig={{
+              highlightBorderColor: 'lightBlue',
+              highlightFillColor: 'yellow',
+            }}
+            searched={this.state.searched}
+            isBubbles={this.state.isBubbles}
+          />
           <Datamap
             scope={this.state.scope}
-            height="100%"
-            width="100%"
+            height={this.state.isBubbles ? '0%' : '100%'}
+            width={this.state.isBubbles ? '0%' : '100%'}
             position="absolute"
             geographyConfig={{
               highlightBorderColor: 'lightBlue',
@@ -404,13 +433,13 @@ export default class Map extends React.Component {
                   ]);
                   return '<br><br>' + (i + 1) + '. ' + underlineTweet;
                 })}
-								</div>`;
+              </div>`;
               },
               highlightBorderWidth: 3,
             }}
             fills={this.state.colors}
             data={this.state.states}
-            labels
+            isBubbles={this.state.isBubbles}
           />
         </div>
       </div>

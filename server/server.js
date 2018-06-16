@@ -14,7 +14,7 @@ app.use(express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 //cronJob.start();
-cronJob.stop();
+//cronJob.stop();
 
 //
 // ─── NATIVE ENDPOINTS ───────────────────────────────────────────────────────────
@@ -27,6 +27,17 @@ app.get('/nationaltrends', async (req, res) => {
 app.get('/keywords', async (req, res) => {
   const keywords = await db.getStateKeywords();
   res.send(keywords);
+});
+
+app.get('/bubbles/:query', (req, res) => {
+  const { query } = req.params;
+  db.getBubbles(query, (err, data) => {
+    if (err) {
+      res.status(404).end();
+    } else {
+      res.send(data);
+    }
+  });
 });
 
 app.post('/statepercentages', async (req, res) => {
