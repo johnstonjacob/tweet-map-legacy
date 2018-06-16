@@ -177,7 +177,7 @@ export default class Map extends React.Component {
 		mean = sumPercentage / count;
 		//Create color gradient based on lowest and highest percentages found
 		if (lowest < highest) {
-			colors = d3.scale.linear().domain([lowest, mean, highest]).range(['#fff0f0', '#ff4d4d', '#990000']);
+			colors = d3.scale.linear().domain([lowest, mean, highest]).range(['#e6f2ff', '#80bfff', '#004d99']);
 		} else {
 			colors = d3.scale.linear().domain([lowest, highest]).range(['#ABDDA4', '#ABDDA4']);
 		}
