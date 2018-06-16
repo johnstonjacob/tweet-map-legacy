@@ -5,9 +5,9 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import Search from './components/Search.jsx';
-import Tables from './components/tables.jsx'
-import Map from './components/map.jsx'
-
+import Tables from './components/tables.jsx';
+import Map from './components/map.jsx';
+import Account from './components/account.jsx';
 //
 // ─── MATERIAL UI THEMING ────────────────────────────────────────────────────────
 //
@@ -50,6 +50,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       view: 'map',
+      history: [],
       currArtistName: null,
       currAlbumUrls: [],
       currAttributes: null,
@@ -61,6 +62,12 @@ class App extends React.Component {
       loggedInUsername: null,
       loginError: false,
     };
+
+    this.views = {
+      map: () => <Map />,
+      tables: () => <Tables />,
+      account: () => <Account loggedIn={this.state.loggedIn} history={this.state.history} />,
+    };
   }
 
   changeView(option) {
@@ -70,91 +77,21 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('PAGE RELOADED');
-    axios.get('/checklogin')
-      .then(res => {
-        console.log(res);
-        if (res.data.user) {
-          console.log('Logged in as:', res.data.user.username);
-          this.setState({
-            loggedIn: true,
-            loggedInUsername: res.data.user.username,
-            loginError: false,
-          });
-        }
-      });
-  }
+    const options = {
+      method: 'GET',
+      url: '/auth/loggedin'
+    };
 
-
-  //
-  // ─── USER AUTH ──────────────────────────────────────────────────────────────────
-  //
-  subscribe(email, username, password) {
-    console.log(`Subscribe with ${username} and ${password}`);
-    axios.get('/subscribe', {
-      params: {
-        email,
-        username,
-        password
-      }
-    })
-      .then(
-        this.setState({
-          loggedIn: true,
-          loggedInUsername: username
-        }))
-      .catch(console.log);
-  }
-
-  login(username, password) {
-    console.log(`Login with ${username} and ${password}`);
-    axios.post('/login', {
-      username,
-      password
-    })
-      .then(res => {
-        console.log('DATA', res);
-        if (res.config.data) {
-          console.log('Logged in as:', JSON.parse(res.config.data).username);
-          this.setState({
-            loggedIn: true,
-            loggedInUsername: JSON.parse(res.config.data).username
-          });
-        }
-      })
-      .catch(
-        (error => {
-          console.log(this);
-          this.setState({
-            loginError: true
-          });
-        })()
-      );
-  }
-
-  logout() {
-    axios.get('/logout')
-      .then(res => {
-        console.log('Logging out');
-        this.setState({
-          loggedIn: false,
-          loginError: false
-        });
-      })
+    axios(options).then(data => {
+      this.setState({loggedIn: data.data.loggedIn, history: data.data.history || []}, console.log(this.state));
+    });
   }
 
   render() {
     return (
       <MuiThemeProvider theme={theme}>
         <div className='App'>
-          <Search
-            // keyUp={this.search.bind(this)}
-            // login={this.login.bind(this)}
-            // logout={this.logout.bind(this)}
-            // subscribe={this.subscribe.bind(this)}
-            loggedIn={this.state.loggedIn}
-            username={this.state.loggedInUsername}
-            error={this.state.loginError} />
+          <Search />
           <span className={this.state.view === 'map'
             ? 'nav-selected'
             : 'nav-unselected'}
@@ -166,15 +103,17 @@ class App extends React.Component {
             : 'nav-unselected'}
             onClick={() => this.changeView('tables')}>
             Tables
-          <br></br>
-            <br></br>
           </span>
-          {/* <h1>Hello, World!</h1>
-        <p>Team Twit 4 Lyfe!</p> */}
-          {this.state.view === 'map'
-            ? <Map />
-            : <Tables />}
-        </div>
+          <span className={this.state.view === 'account'
+            ? 'nav-selected'
+            : 'nav-unselected'}
+            onClick={() => this.changeView('account')}>
+            Account 
+          </span>
+          <br />
+          <br />
+          {this.views[this.state.view]()} 
+          </div>
       </MuiThemeProvider>
     );
   }
