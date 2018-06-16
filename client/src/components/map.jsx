@@ -236,10 +236,13 @@ export default class Map extends React.Component {
 	}
 
 	handleSentimentSubmit(event) {
-		this.postStateSentiments(this.state.textbox);
+		let searchTerm = this.state.textbox.length 
+			? this.state.textbox
+			: this.state.searched
+		this.postStateSentiments(searchTerm);
 		this.setState({
 			textbox: '',
-			searched: this.state.textbox
+			searched: searchTerm
 		});
 		event.preventDefault();
 	}
@@ -269,6 +272,9 @@ export default class Map extends React.Component {
 	// ─── RENDER ─────────────────────────────────────────────────────────────────────
 	//
 	render() {
+		let sentimentAnalysisButton = this.state.scope === "usa" 
+			? <button onClick={this.handleSentimentSubmit}>Sentiment Analaysis</button>
+			: ('')
 		return (
 			<div>
 				<div>
@@ -277,7 +283,7 @@ export default class Map extends React.Component {
 						<input type="text" placeholder='Search' autoFocus='autofocus' value={this.state.textbox} onChange={this.handleTextboxChange} />
 
 						<input type="submit" value="Populate Map" />
-						<button onClick={this.handleSentimentSubmit}></button>
+						{sentimentAnalysisButton}
 					</form>
 					<br></br>
 					<span className={this.state.scope === "usa"
@@ -322,7 +328,7 @@ export default class Map extends React.Component {
 						}}
 						fills={this.state.colors}
 						data={this.state.states}
-						labels />
+						 />
 				</div>
 			</div>
 		)

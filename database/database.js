@@ -55,6 +55,7 @@ const Tweet = mongoose.model(
     createdAt: Date,
     latitude: Number,
     longitude: Number,
+    radius: Number
   }), 'Tweets',
 );
 
@@ -123,8 +124,8 @@ const getStatePercentages = async (keyword) => {
           $multiply: [{ $divide: ['$matchCount', '$totalCount'] }, 100],
         },
       },
-    },
-  ]);
+    }, 
+  ]).allowDiskUse(true);
   
   const percentsObj = {};
   for (const val of percents) {
@@ -174,7 +175,7 @@ const getCountryPercentages = async (keyword) => {
         },
       },
     },
-  ]);
+  ]).allowDiskUse(true);
 
   const percentsObj = {};
   for (const val of percents) {
@@ -189,6 +190,11 @@ const getCountryPercentages = async (keyword) => {
 
 const getStateSentiments = async (keyword) => {
   const stateTweets = await Tweet.aggregate([
+    {
+      $match: {
+        country: 'US',
+      },
+    },
     {
       $group: {
         _id: '$state',

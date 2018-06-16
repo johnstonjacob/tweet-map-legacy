@@ -34,6 +34,7 @@ const getSentimentFromTweets = (tweetTextArray) => {
     const parameters = {
       features: { sentiment: {} },
       text: group,
+      language: 'en',
     };
     // Limit the rate of the API calls so as not to get a 429 code
     promiseArr.push(new Promise((resolve, reject) => {
