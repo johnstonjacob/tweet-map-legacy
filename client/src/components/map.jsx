@@ -372,7 +372,7 @@ export default class Map extends React.Component {
   //
   render() {
     let sentimentAnalysisButton =
-      this.state.scope === 'usa' ? (
+      (this.state.scope === 'usa' && !this.state.isBubbles) ? (
         <button onClick={this.handleSentimentSubmit}>Sentiment Analysis</button>
       ) : (
         ''
@@ -440,6 +440,7 @@ export default class Map extends React.Component {
             }}
             searched={this.state.searched}
             isBubbles={this.state.isBubbles}
+            fetchInProgress={this.state.fetchInProgress}
           />
           <Datamap
             scope={this.state.scope}
