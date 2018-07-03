@@ -19,7 +19,7 @@ passport.use(
     {
       consumerKey: process.env.TWITTER_KEY,
       consumerSecret: process.env.TWITTER_SECRET,
-      callbackURL: 'https://tweet-map-legacy.herokuapp.com/auth/twitter/callback',
+      callbackURL: 'http://johnstonjacob.com/tweetmap/auth/twitter/callback/',
     },
     (token, tokenSecret, profile, cb) => {
       User.findOrCreate({twitterId: profile.id}, (err, user) => cb(err, user));
@@ -34,10 +34,10 @@ function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/');
+  res.redirect('/tweetmap');
 }
 
-app.get('/auth/loggedin', (req, res) => {
+app.get('/tweetmap/auth/loggedin', (req, res) => {
   if(req.isAuthenticated()){
      User.sessionCheck(req.sessionID).then(user => {
        res.send({loggedIn: true, history: user.history});
@@ -46,17 +46,17 @@ app.get('/auth/loggedin', (req, res) => {
   else res.send({loggedIn: false});
 });
 
-app.get('/auth/twitter', passport.authenticate('twitter'));
+app.get('/tweetmap/auth/twitter', passport.authenticate('twitter'));
 
 app.get(
-  '/auth/twitter/callback*',
+  '/tweetmap/auth/twitter/callback*',
   passport.authenticate('twitter', {
-    failureRedirect: '/login',
+    failureRedirect: '/tweetmap/login',
   }),
   (req, res) => {
     const user = req._passport.session.user;
     User.sessionAdd(user, req.sessionID);
-    res.redirect('/');
+    res.redirect('/tweetmap');
   },
 );
 

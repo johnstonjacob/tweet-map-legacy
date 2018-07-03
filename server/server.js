@@ -10,7 +10,7 @@ const User = require('../database/user');
 //
 // ─── MIDDLEWARE ─────────────────────────────────────────────────────────────────
 //
-app.use(express.static(`${__dirname}/../client/dist/`));
+app.use('/tweetmap', express.static(`${__dirname}/../client/dist/`));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 cronJobUS.start();
@@ -19,22 +19,22 @@ cronJobWorld.start();
 //
 // ─── NATIVE ENDPOINTS ───────────────────────────────────────────────────────────
 //
-app.get('/nationaltrends', async (req, res) => {
+app.get('/tweetmap/nationaltrends', async (req, res) => {
   const trends = await db.getNationalTrends();
   res.send(trends);
 });
 
-app.get('/globaltrends', async (req, res) => {
+app.get('/tweetmap/globaltrends', async (req, res) => {
   const trends = await db.getGlobalTrends();
   res.send(trends);
 });
 
-app.get('/keywords', async (req, res) => {
+app.get('/tweetmap/keywords', async (req, res) => {
   const keywords = await db.getStateKeywords();
   res.send(keywords);
 });
 
-app.get('/bubbles/:query', (req, res) => {
+app.get('/tweetmap/bubbles/:query', (req, res) => {
   const { query } = req.params;
   db.getBubbles(query, (err, data) => {
     if (err) {
@@ -45,17 +45,17 @@ app.get('/bubbles/:query', (req, res) => {
   });
 });
 
-app.post('/statepercentages', async (req, res) => {
+app.post('/tweetmap/statepercentages', async (req, res) => {
   const percents = await db.getStatePercentages(req.body);
   res.send(percents);
 });
 
-app.post('/countrypercentages', async (req, res) => {
+app.post('/tweetmap/countrypercentages', async (req, res) => {
   const percents = await db.getCountryPercentages(req.body);
   res.send(percents);
 });
 
-app.post('/statesentiments', (req, res) => {
+app.post('/tweetmap/statesentiments', (req, res) => {
   db.getStateSentiments(req.body)
     .then(sentiments => {
       console.log('SENTIMENT DATA', sentiments);
@@ -64,7 +64,7 @@ app.post('/statesentiments', (req, res) => {
     .catch(console.log);
 });
 
-app.post('/postterm', (req, res) => {
+app.post('/tweetmap/postterm', (req, res) => {
   console.log(req.sessionID);
   User.historyAdd(req.sessionID, req.body.term).then(res.send('done')).catch(console.error);
 })

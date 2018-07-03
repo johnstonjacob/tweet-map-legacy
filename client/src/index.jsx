@@ -80,7 +80,7 @@ class App extends React.Component {
   componentDidMount() {
     const options = {
       method: 'GET',
-      url: '/auth/loggedin'
+      url: '/tweetmap/auth/loggedin'
     };
 
     axios(options).then(data => {

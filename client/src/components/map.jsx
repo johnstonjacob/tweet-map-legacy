@@ -49,7 +49,7 @@ export default class Map extends React.Component {
   //
   getNationalTrends() {
     axios
-      .get('/nationaltrends')
+      .get('/tweetmap/nationaltrends')
       .then((response) => {
         this.setState({
           nationalTrends: response.data,
@@ -62,7 +62,7 @@ export default class Map extends React.Component {
 
   getGlobalTrends() {
     axios
-      .get('/globaltrends')
+      .get('/tweetmap/globaltrends')
       .then((response) => {
         this.setState({
           globalTrends: response.data,
@@ -80,7 +80,7 @@ export default class Map extends React.Component {
     console.log('Keyword:', searchTerm);
     this.state.fetchInProgress = true;
     if (searchTerm !== '') {
-      axios.post('/statepercentages', { word: searchTerm }).then((response) => {
+      axios.post('/tweetmap/statepercentages', { word: searchTerm }).then((response) => {
         this.state.fetchInProgress = false;
         this.setPercentages(response.data);
       });
@@ -91,7 +91,7 @@ export default class Map extends React.Component {
     console.log('Keyword:', searchTerm);
     this.state.fetchInProgress = true;
     if (searchTerm !== '') {
-      axios.post('/countrypercentages', { word: searchTerm }).then((response) => {
+      axios.post('/tweetmap/countrypercentages', { word: searchTerm }).then((response) => {
         this.state.fetchInProgress = false;
         this.setPercentages(response.data);
       });
@@ -102,7 +102,7 @@ export default class Map extends React.Component {
     console.log('Keyword:', searchTerm);
     if (searchTerm !== '') {
       this.state.fetchInProgress = true;
-      axios.post('/statesentiments', { word: searchTerm }).then((response) => {
+      axios.post('/tweetmap/statesentiments', { word: searchTerm }).then((response) => {
         this.state.fetchInProgress = false;
         this.setSentiments(response.data);
       });
@@ -264,7 +264,7 @@ export default class Map extends React.Component {
 
   handleSubmit(event) {
     if (this.props.loggedIn)
-      axios.post('/postterm', { term: this.state.textbox }).then(console.log);
+      axios.post('/tweetmap/postterm', { term: this.state.textbox }).then(console.log);
     this.state.scope === 'usa'
       ? this.postStatePercentages(this.state.textbox)
       : this.postCountryPercentages(this.state.textbox);

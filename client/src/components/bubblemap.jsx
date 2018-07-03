@@ -97,7 +97,7 @@ export default class Bubblemap extends React.Component {
     }
     
     getBubbles(query) {
-        axios.get(`/bubbles/${query}`)
+        axios.get(`/tweetmap/bubbles/${query}`)
                 .then((response) => {
                     this.setState({
                         bubbles: response.data,

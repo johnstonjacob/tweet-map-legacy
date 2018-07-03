@@ -15,7 +15,7 @@ export default function Account(props) {
           {props.history.map(item => <p>{item}</p>)}
         </div>
       ) : (
-        <form action="/auth/twitter" method="GET">
+        <form action="/tweetmap/auth/twitter" method="GET">
           <button>Login</button>
         </form>
       )}
